@@ -15,11 +15,11 @@
     </div>
 
     <!-- 아이디 비밀번호 -->
-    <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+    <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm mb-6">
       <form action="#" method="POST" class="space-y-6">
         <!-- ID -->
         <div>
-          <label for="id" class="block text-sm font-medium text-gray-900">아이디</label>
+          <label for="id" class="block text-sm font-medium text-gray-900">사용자명</label>
           <input type="text" name="signupid" id="signupid" required
             class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-400 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:outline-none focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
         </div>
@@ -50,51 +50,21 @@
     </div>
 
 
-    <!-- 정보입력 1 -->
-    <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+    <!-- 정보입력 -->
+    <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm mb-6">
       <form action="#" method="POST" class="space-y-6">
-
-        <!-- 이름 -->
         <div>
-          <label for="name" class="block text-sm font-medium text-gray-700">이름</label>
-          <input type="text" id="name" name="name" required
-            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-400 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-        </div>
-
-        <!-- 성별 -->
-        <div>
-          <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">성별</label>
-          <div class="flex items-center space-x-4">
-            <label class="inline-flex items-center">
-              <input type="radio" name="gender" value="male" required class="form-radio text-blue-600" />
-              <span class="ml-2">남성</span>
-            </label>
-            <label class="inline-flex items-center">
-              <input type="radio" name="gender" value="female" required class="form-radio text-blue-600" />
-              <span class="ml-2">여성</span>
-            </label>
-          </div>
-        </div>
-
-        <!-- 생년월일 -->
-        <div>
-          <label for="birthdate" class="block text-sm font-medium text-gray-700">생년월일</label>
-          <input type="date" id="birthdate" name="birthdate" required
-            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-400 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-        </div>
-
-        <!-- 출신지 -->
-        <div>
-          <label for="hometown" class="block text-sm font-medium text-gray-700">출신지</label>
-          <input type="text" id="hometown" name="hometown" required
-            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-400 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-        </div>
-
-        <div>
-          <label for="hometown" class="block text-sm font-medium text-gray-700">자기소개</label>
-          <textarea name="about" id="about" rows="2" required
+          <label class="block text-sm font-medium text-gray-700">하고싶은 한마디</label>
+          <textarea name="about" id="about" required
             class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-400 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-            maxlength="50" placeholder="나를 소개할 자기소개 한마디..."></textarea>
+            maxlength="50" placeholder="나를 소개할 한마디..."></textarea>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">자기소개</label>
+          <textarea name="about" id="about"
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-400 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+            placeholder="추가로 하고 싶은 말 (선택)"></textarea>
         </div>
 
         <!-- 완료 버튼 -->
@@ -104,11 +74,6 @@
         </button>
 
       </form>
-    </div>
-
-    <!-- 정보입력 2 -->
-    <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-
     </div>
 
     <a href="#" class="text-gray-900 hover:text-indigo-500">돌아가기</a>
