@@ -11,6 +11,7 @@ debugpy==1.8.14
 decorator==5.2.1
 distro==1.9.0
 dnspython==2.7.0
+dotenv==0.9.9
 executing==2.2.0
 Flask==3.1.0
 Flask-JWT-Extended==4.7.1
