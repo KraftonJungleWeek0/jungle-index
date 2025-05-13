@@ -12,4 +12,7 @@ htmlcov/
 dist/
 build/
 *.egg-info/
-jungle-index/templates/test.html
+
+.env
+
+*.ipynb
