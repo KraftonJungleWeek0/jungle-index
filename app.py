@@ -207,6 +207,21 @@ def user_profile(username):
 
     return render_template("user.html", user=user, another_user=doc)
 
+@app.route('/api/correct_answer/<username>',methods={"POST"})
+@jwt_required()
+def correct_answer(username):
+    current_user = get_jwt_identity()
+    print(username)
+    db.users.update_one(
+        {"username":current_user},
+        {"$push": {"captured_users":username}}
+    )
+    if username == None:
+        return api_response("error","username이 None")
+    else:
+        return api_response("success","도감에 성공적으로 저장")
+        
+
 
 @app.route("/my")
 @jwt_required()  # JWT 필수

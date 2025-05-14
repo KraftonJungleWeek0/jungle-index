@@ -50,11 +50,18 @@
         </div>
         <div class="absolute bottom-4 right-6">
           <!-- 버튼 액션 필요 -->
-          <button
+          <button id="correctAnswerBtn"
             class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700"
           >
             랜덤
           </button>
+          <!--임시 버튼 모달에 달린 버튼에 따라 변경 예정-->
+          <button onclick="submitCorrectAnswer('간간디')" 
+        class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+            정답!
+        </button>
+        
+
         </div>
       </div>
 
@@ -109,6 +116,25 @@
   </body>
 
   <script>
+  function submitCorrectAnswer(username) {
+    fetch(`/api/correct_answer/${username}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // JWT 인증 토큰이 필요한 경우 로컬스토리지에서 꺼내서 추가:
+        "Authorization": "Bearer " + localStorage.getItem("access_token")
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert(data.message);  // 예: "도감에 성공적으로 저장"
+    })
+    .catch(error => {
+      console.error("Error:", error);
+      alert("오류가 발생했습니다.");
+    });
+  }
+
     document.getElementById("logoutBtn").addEventListener("click", async () => {
       try {
         const res = await fetch("/api/auth/logout", {
