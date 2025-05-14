@@ -61,8 +61,6 @@ def reroll():
 
     while count == 0:  # 해당 속성을 가진 유저가 없으면 계속 실행
        
-
-
         # 무작위 난수 생성 -> 난수에 따라 속성 딕셔너리에서 무작위 속성 추출
         random_attr = get_random_attr()
         # print("랜덤 속성 : "+random_attr)
@@ -97,8 +95,8 @@ def signup():
     raw_password = data.get('password')
     simple_description = data.get('simple_description')
 
-    hobby_list = data.get('hobby_list', [])
-    hobby_list = hobby_list.split(',')
+    hobby_list = data.get('hobby_list', '') #문자열로 넘어온 hobby list 리스트 형태로 변환 추후 바뀔 수도 있음
+    hobby_list = hobby_list.split(',') if hobby_list else []
 
     mbti = data.get('mbti')
     preferred_language = data.get('preferred_language')
