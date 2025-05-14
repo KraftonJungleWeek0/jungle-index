@@ -148,7 +148,6 @@ def signin_api():
 
     return api_response("error", "아이디 또는 비밀번호가 올바르지 않습니다."), 401
 
-
 @app.route("/api/auth/logout", methods=["POST"])
 @jwt_required()
 def logout():
@@ -156,6 +155,7 @@ def logout():
     unset_jwt_cookies(resp)
     resp.status_code = 200
     return resp
+
 @app.route('/user')
 def user_profile():
     # 토큰에서 사용자 아이디(또는 username)를 꺼내서 템플릿에 전달
@@ -167,6 +167,7 @@ def user_profile():
     doc = db.users.find_one({'username':username})
     
     return render_template("user_info2.html", user=user,another_user = doc)
+
 @app.route('/my')
 def my_profile():
     current_user = get_jwt_identity()
