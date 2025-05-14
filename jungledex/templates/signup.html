@@ -6,6 +6,8 @@
     <!-- jQuery & Tailwind -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- LottieFiles CDN에서 Lottie Player 불러오기 -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <title>정글덱스 | 회원가입</title>
   </head>
   <body class="flex bg-gray-100 items-center justify-center min-h-screen">
@@ -14,8 +16,19 @@
       id="loadingModal"
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50"
     >
-      <div class="bg-white p-6 rounded-lg shadow-lg">
-        <p id="loadingTip" class="text-gray-800 text-center">
+      <div
+        class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center space-y-4"
+      >
+        <!-- Lottie 애니메이션 추가 -->
+        <lottie-player
+          src="{{ url_for('static', filename='enrolling.json') }}"
+          background="transparent"
+          speed="0.5"
+          style="width: 300px; height: 300px"
+          loop
+          autoplay
+        ></lottie-player>
+        <p id="loadingTip" class="text-gray-800 text-center text-lg">
           <!-- JS에서 순환될 텍스트가 들어갑니다 -->
         </p>
       </div>
@@ -223,7 +236,6 @@
               </label>
             </div>
 
-
             <div class="inline-block">
               <input
                 type="checkbox"
@@ -239,7 +251,6 @@
                 🏃‍♂️ 러닝
               </label>
             </div>
-
 
             <div class="inline-block">
               <input
@@ -257,7 +268,6 @@
               </label>
             </div>
 
-
             <div class="inline-block">
               <input
                 type="checkbox"
@@ -273,7 +283,6 @@
                 👩‍🍳 요리
               </label>
             </div>
-
 
             <div class="inline-block">
               <input
@@ -291,7 +300,6 @@
               </label>
             </div>
 
-
             <div class="inline-block">
               <input
                 type="checkbox"
@@ -308,7 +316,6 @@
               </label>
             </div>
 
-
             <div class="inline-block">
               <input
                 type="checkbox"
@@ -324,7 +331,6 @@
                 🥊 무술
               </label>
             </div>
-
 
             <div class="inline-block">
               <input
@@ -354,7 +360,7 @@
                 for="hobby-코딩"
                 class="cursor-pointer px-3 py-1 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white transform transition hover:scale-105"
               >
-                👨‍💻  코딩 
+                👨‍💻 코딩
               </label>
             </div>
 
@@ -370,10 +376,9 @@
                 for="hobby-클라이밍"
                 class="cursor-pointer px-3 py-1 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white transform transition hover:scale-105"
               >
-                🧗 클라이밍 
+                🧗 클라이밍
               </label>
             </div>
-
 
             <div class="inline-block">
               <input
@@ -391,7 +396,6 @@
               </label>
             </div>
 
-
             <div class="inline-block">
               <input
                 type="checkbox"
@@ -407,7 +411,6 @@
                 🧘‍♀️ 요가
               </label>
             </div>
-
 
             <div class="inline-block">
               <input
@@ -425,7 +428,6 @@
               </label>
             </div>
 
-
             <div class="inline-block">
               <input
                 type="checkbox"
@@ -441,7 +443,6 @@
                 ⛳️ 골프
               </label>
             </div>
-
 
             <div class="inline-block">
               <input
@@ -459,7 +460,6 @@
               </label>
             </div>
 
-
             <div class="inline-block">
               <input
                 type="checkbox"
@@ -475,7 +475,6 @@
                 🍿 영화
               </label>
             </div>
-
 
             <div class="inline-block">
               <input
@@ -493,7 +492,6 @@
               </label>
             </div>
 
-
             <div class="inline-block">
               <input
                 type="checkbox"
@@ -509,7 +507,6 @@
                 🎮 게임
               </label>
             </div>
-
 
             <div class="inline-block">
               <input
@@ -817,10 +814,16 @@
         // 로딩 모달 & 팁 순환 함수 정의
         // ------------------------------
         const loadingTips = [
-          "Tip: 정글에서 살아남기 위해 여러 정글러들을 만나보세요",
-          "Tip: 정글몬이 불쑥 튀어나와도 놀라지 마세요",
-          "Tip: 정글 도감을 인쇄하는 중...",
-          "Tip: 주기적으로 정글을 탐험해보세요",
+          "Tip: 정글에서 살아남기 위해 여러 정글몬들과 어울리세요 😊",
+          "Tip: 정글몬이 불쑥 튀어나와도 놀라지 마세요 🤭",
+          "Tip: 눈알 조립하는 중...👀",
+          "Tip: 정글 도감을 인쇄하는 중... 🗺️",
+          "Tip: 주기적으로 정글을 탐험해보세요 🧭",
+          "Tip: 한 번 수집된 정글몬은 영원히 박제됩니다.📔",
+          "Tip: '돌리기' 버튼을 누르면 새로운 정글몬이 등장합니다.🌴",
+          "Tip: 카페인 30,000mg 주입 중...☕️",
+          "Tip: 정글몬을 클릭하면 무시무시한 일이 벌어집니다.😱",
+          "Tip: 챗 지피티 조련하는 중...🤖",
         ];
         let tipIndex = 0,
           tipInterval;
@@ -832,7 +835,7 @@
           tipInterval = setInterval(() => {
             $("#loadingTip").text(loadingTips[tipIndex]);
             tipIndex = (tipIndex + 1) % loadingTips.length;
-          }, 3000);
+          }, 2500);
         }
 
         function hideLoading() {
