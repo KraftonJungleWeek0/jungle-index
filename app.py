@@ -90,9 +90,24 @@ def dashboard_page():
 
     # 1) 원본 커서 조회
     # raw_users 단계에서 current_user를 제외
-    raw_users = db.users.find(
+    if(random_big_attr == "취미"):
+        raw_users = db.users.find(
         {
-            "user_choice": random_small_attr,
+            "hobbies": random_small_attr,
+            "username": {"$ne": current_user},  # current_user가 아닌 문서만 조회
+        }
+    )
+    elif (random_big_attr == "MBTI"):
+        raw_users = db.users.find(
+        {
+            "mbti": {"$regex": random_small_attr, "$options": "i"},
+            "username": {"$ne": current_user},  # current_user가 아닌 문서만 조회
+        }
+    )
+    elif (random_big_attr == "선호 언어"):
+        raw_users = db.users.find(
+        {
+            "languages": random_small_attr,
             "username": {"$ne": current_user},  # current_user가 아닌 문서만 조회
         }
     )
