@@ -1,5 +1,6 @@
 import os
 import random
+import re
 from datetime import timedelta
 
 import bcrypt
@@ -30,9 +31,24 @@ category_list = ["취미", "MBTI", "선호 언어"]
 # 소카테고리 리스트
 hobby_attr_list = ["운동", "독서", "여행", "게임", "드라이브", "영화"]
 mbti_attr_list = ["E", "I", "S", "N", "T", "F", "J", "P"]
-lang_attr_list = ["Python", "JavaScript", "Java", "C++", "C#", "Go", "Rust", "Typescript", "Swift"]
+lang_attr_list = [
+    "Python",
+    "JavaScript",
+    "Java",
+    "C++",
+    "C#",
+    "Go",
+    "Rust",
+    "Typescript",
+    "Swift",
+]
 
-category_attr_match_dict={"취미" : hobby_attr_list, "MBTI" : mbti_attr_list, "선호 언어" : lang_attr_list}
+category_attr_match_dict = {
+    "취미": hobby_attr_list,
+    "MBTI": mbti_attr_list,
+    "선호 언어": lang_attr_list,
+}
+
 
 def api_response(status: str, message: str, data: dict = None):
     payload = {"status": status, "message": message}
@@ -90,27 +106,27 @@ def dashboard_page():
 
     # 1) 원본 커서 조회
     # raw_users 단계에서 current_user를 제외
-    if(random_big_attr == "취미"):
+    if random_big_attr == "취미":
         raw_users = db.users.find(
-        {
-            "hobbies": random_small_attr,
-            "username": {"$ne": current_user},  # current_user가 아닌 문서만 조회
-        }
-    )
-    elif (random_big_attr == "MBTI"):
+            {
+                "hobbies": random_small_attr,
+                "username": {"$ne": current_user},  # current_user가 아닌 문서만 조회
+            }
+        )
+    elif random_big_attr == "MBTI":
         raw_users = db.users.find(
-        {
-            "mbti": {"$regex": random_small_attr, "$options": "i"},
-            "username": {"$ne": current_user},  # current_user가 아닌 문서만 조회
-        }
-    )
-    elif (random_big_attr == "선호 언어"):
+            {
+                "mbti": {"$regex": random_small_attr, "$options": "i"},
+                "username": {"$ne": current_user},  # current_user가 아닌 문서만 조회
+            }
+        )
+    elif random_big_attr == "선호 언어":
         raw_users = db.users.find(
-        {
-            "languages": random_small_attr,
-            "username": {"$ne": current_user},  # current_user가 아닌 문서만 조회
-        }
-    )
+            {
+                "languages": random_small_attr,
+                "username": {"$ne": current_user},  # current_user가 아닌 문서만 조회
+            }
+        )
 
     # 2) 필요한 필드만 뽑아서 새 리스트 생성
     target_attr_users = [
@@ -177,6 +193,7 @@ def signup_api():
             "languages": languages,
             "profile_url": image_url,
             "user_choice": user_choice,
+            "captured_users": [],
         }
     )
 
@@ -220,6 +237,51 @@ def logout():
     unset_jwt_cookies(resp)
     resp.status_code = 200
     return resp
+
+
+@app.route("/api/quiz/<username>", methods=["GET"])
+@jwt_required()
+def generate_quiz(username):
+    user = db.users.find_one({"username": username})
+    main = random.choice(category_list)
+    sub = random.choice(category_attr_match_dict[main])
+
+    # 정답 판정
+    if main == "취미":
+        answer = sub in user.get("hobbies", [])
+    elif main == "MBTI":
+        answer = bool(re.search(sub, user.get("mbti", ""), re.IGNORECASE))
+    else:  # 선호 언어
+        answer = sub == user.get("languages")
+
+    quiz_str = f"{username}몬의 {main} 중 {sub}이다."
+    return (
+        api_response(
+            "success",
+            "Quiz generated",
+            {
+                "mainAttr": main,
+                "subAttr": sub,
+                "quiz_string": quiz_str,
+                "quiz_answer": answer,
+            },
+        ),
+        200,
+    )
+
+
+# app.py에 맨 아래쪽(혹은 quiz 엔드포인트 아래)에 추가
+
+
+@app.route("/api/capture/<target_username>", methods=["POST"])
+@jwt_required()
+def capture_user(target_username):
+    current = get_jwt_identity()
+    # 현재 유저의 captured_users 배열에 중복 없이 추가
+    db.users.update_one(
+        {"username": current}, {"$addToSet": {"captured_users": target_username}}
+    )
+    return api_response("success", f"{target_username}몬이 도감에 등록되었습니다."), 200
 
 
 @app.route("/user/<username>")

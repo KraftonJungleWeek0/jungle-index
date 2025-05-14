@@ -46,8 +46,11 @@
       <!-- 헤더 카드 -->
       <header class="bg-white m-6 p-6 rounded-xl shadow-lg relative">
         <h1 class="text-3xl font-semibold text-center">
-          야생의 <span class="text-green-600">{{ random_big_attr }} : {{ random_small_attr }}</span> 속성
-          정글러가 나타났다!
+          야생의
+          <span class="text-green-600"
+            >{{ random_big_attr }} : {{ random_small_attr }}</span
+          >
+          속성 정글러가 나타났다!
         </h1>
         <button
           onclick="location.reload(true)"
@@ -124,60 +127,171 @@
             console.error("네트워크 에러", err);
           }
         });
+      async function loadQuiz(username) {
+        const res = await fetch(`/api/quiz/${username}`, {
+          method: "GET",
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error("퀴즈 로드 실패");
+        return (await res.json()).data;
+      }
 
-      // 카드 클릭 모달 로직
+      async function registerCapture(username) {
+        await fetch(`/api/capture/${username}`, {
+          method: "POST",
+          credentials: "include",
+        });
+      }
+
+      function showModal(contentHTML) {
+        const modal = document.getElementById("quizModal");
+        document.getElementById("modalContent").innerHTML = contentHTML;
+        modal.classList.remove("hidden");
+      }
+
+      function hideModal() {
+        document.getElementById("quizModal").classList.add("hidden");
+      }
+
       document.querySelectorAll(".user-card").forEach((card) => {
-        card.addEventListener("click", () => {
-          const username = card.dataset.username;
-          const profileImage = card.querySelector("img").src;
-          const modal = document.getElementById("quizModal");
-          const modalContent = document.getElementById("modalContent");
+        card.addEventListener("click", async () => {
+          const target = card.dataset.username;
 
-          modalContent.innerHTML = `
-          <img src="${profileImage}" alt="Profile" class="w-24 h-24 mx-auto rounded-full mb-4">
-          <p class="text-lg font-semibold">${username}</p>
-          <p class="text-sm text-gray-600 mt-2">이 유저를 맞혀보세요!</p>
-        `;
-          modal.classList.remove("hidden");
+          // 1) 로딩 인터루드
+          showModal(`<p class="mb-4">🕹️ 문제를 불러오는 중...</p>`);
 
+          // 2) 문제/정답 가져오기
+          let quiz;
+          try {
+            quiz = await loadQuiz(target);
+          } catch (e) {
+            return showModal(`<p class="text-red-500">문제 로드 실패</p>`);
+          }
+
+          // 3) 2초 뒤에 O/X 버튼 노출
           setTimeout(() => {
-            modalContent.innerHTML = `
-            <p class="text-2xl font-semibold mb-6">도감 등록 찬스!</p>
-            <p class="text-lg font-semibold mb-4">이 유저는 헬스를 좋아한다?</p>
-            <div class="flex justify-center gap-4">
-              <button id="btn-yes" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">O</button>
-              <button id="btn-no" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">X</button>
-            </div>
-          `;
+            showModal(`
+          <p class="text-lg mb-6">${quiz.quiz_string}</p>
+          <div class="flex justify-center gap-4">
+            <button id="btn-yes" class="px-4 py-2 bg-green-500 text-white rounded">O</button>
+            <button id="btn-no"  class="px-4 py-2 bg-red-500   text-white rounded">X</button>
+          </div>
+        `);
 
-            const correctAnswer = true;
             document.getElementById("btn-yes").onclick = () =>
-              handleAnswer(true);
+              handleAnswer(true, quiz.quiz_answer, target);
             document.getElementById("btn-no").onclick = () =>
-              handleAnswer(false);
-
-            function handleAnswer(answer) {
-              const isCorrect = answer === correctAnswer;
-              const messageResult = isCorrect
-                ? "정답입니다! 👏"
-                : "오답입니다! 😢";
-              const messageTip = isCorrect
-                ? "도감 등록 완료!"
-                : "hint: 유저 프로필을 자세히 보세요";
-              modalContent.innerHTML = `
-              <p class="text-xl font-bold mb-2">${messageResult}</p>
-              <img src="${profileImage}" alt="Profile" class="w-20 h-20 mx-auto rounded-full mb-4">
-              <p class="text-sm text-gray-600 mb-4">${username}</p>
-              <p class="text-sm text-gray-800 mb-4">${messageTip}</p>
-              <button id="closeBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">확인</button>
-            `;
-              document
-                .getElementById("closeBtn")
-                .addEventListener("click", () => modal.classList.add("hidden"));
-            }
+              handleAnswer(false, quiz.quiz_answer, target);
           }, 2000);
         });
       });
+
+      async function handleAnswer(userAns, correctAns, target) {
+        // 정답 여부
+        const isRight = userAns === correctAns;
+
+        if (isRight) {
+          // 맞추면 도감 등록 API 호출
+          showModal(`<p class="text-xl font-bold mb-4">정답입니다! 🎉</p>
+                 <p class="mb-4">도감에 등록 중...</p>`);
+          try {
+            await registerCapture(target);
+            showModal(`
+          <p class="text-xl font-bold mb-2">도감에 등록 완료! ✅</p>
+          <button id="closeBtn" class="px-4 py-2 bg-blue-600 text-white rounded">확인</button>
+        `);
+          } catch {
+            showModal(`<p class="text-red-500">등록 중 오류가 발생했습니다.</p>
+                   <button id="closeBtn" class="px-4 py-2 bg-blue-600 text-white rounded">확인</button>`);
+          }
+
+          document.getElementById("closeBtn").onclick = () => {
+            hideModal();
+            location.reload();
+          };
+        } else {
+          // 틀리면 1.5초 뒤 모달 닫고 대시보드 새로고침
+          showModal(`<p class="text-xl font-bold mb-2">오답입니다… 😢</p>
+                 <p class="text-sm mb-4">다시 도전해 보세요!</p>`);
+          setTimeout(() => {
+            hideModal();
+            location.reload();
+          }, 1500);
+        }
+      }
     </script>
+
+    <!-- 
+    <script>
+      // 로그아웃
+      document
+        .getElementById("logoutBtn")
+        .addEventListener("click", async () => {
+          try {
+            const res = await fetch("/api/auth/logout", {
+              method: "POST",
+              credentials: "include",
+            });
+            if (res.ok) window.location.href = "/";
+            else console.error("로그아웃 실패", res.status, await res.text());
+          } catch (err) {
+            console.error("네트워크 에러", err);
+          }
+        });
+      document.querySelectorAll(".user-card").forEach((card) => {
+        card.addEventListener("click", async () => {
+          const username = card.dataset.username;
+          const modal = document.getElementById("quizModal");
+          const modalContent = document.getElementById("modalContent");
+
+          // 1) 서버로부터 문제와 정답 받아오기
+          const res = await fetch(`/api/quiz/${username}`, {
+            method: "GET",
+            credentials: "include",
+          });
+          if (!res.ok) return console.error("퀴즈 로드 실패");
+          const { quiz_string, quiz_answer } = (await res.json()).data;
+
+          // 2) 잠깐 인트로 보여주기
+          modalContent.innerHTML = `<p class="mb-4">🕹️ 앗! 야생의 정글몬을 발견했다!</p>`;
+          modal.classList.remove("hidden");
+
+          // 3) 2초 뒤에 문제, 버튼 노출
+          setTimeout(() => {
+            modalContent.innerHTML = `
+        <p class="text-lg mb-6">${quiz_string}</p>
+        <div class="flex justify-center gap-4">
+          <button id="btn-yes" class="px-4 py-2 bg-green-500 text-white rounded">O</button>
+          <button id="btn-no"  class="px-4 py-2 bg-red-500   text-white rounded">X</button>
+        </div>
+      `;
+            // 4) 클릭 시 비교
+            document.getElementById("btn-yes").onclick = () =>
+              showResult(true, quiz_answer, username, card);
+            document.getElementById("btn-no").onclick = () =>
+              showResult(false, quiz_answer, username, card);
+          }, 1500);
+        });
+      });
+
+      // 결과 보여주는 함수
+      function showResult(userAns, correctAns, username, card) {
+        const isRight = userAns === correctAns;
+        modalContent.innerHTML = `
+    <p class="text-xl font-bold mb-2">${
+      isRight ? "정답입니다! 🎉" : "틀렸습니다… 😢"
+    }</p>
+    <p class="text-sm mb-4">${
+      isRight ? "도감에 등록됐어요!" : "힌트: 프로필을 잘 살펴보세요."
+    }</p>
+    <button id="closeBtn" class="px-4 py-2 bg-blue-600 text-white rounded">확인</button>
+  `;
+        document.getElementById("closeBtn").onclick = () =>
+          document.getElementById("quizModal").classList.add("hidden");
+
+        // (선택) 정답일 때 도감 등록 로직 호출
+        if (isRight) registerToMyPage(username);
+      }
+    </script> -->
   </body>
 </html>
