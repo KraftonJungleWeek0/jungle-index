@@ -1,7 +1,6 @@
 import os
 from openai import OpenAI
 
-from jungledex.oai.prompt import make_prompt
 
 def generate_user_profile_image(user_choice: str, illustration: str = "pokemon"):
     client = OpenAI(
@@ -24,8 +23,6 @@ def generate_user_profile_image(user_choice: str, illustration: str = "pokemon")
     response = client.images.generate(
         model="dall-e-3",
         prompt=prompt,
-        size="1024x1024",
-        quality="standard",
         n=1,
     )
 

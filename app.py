@@ -70,7 +70,7 @@ def check_username():
     if db.users.find_one({'username': username}):
         return api_response("error", "이미 가입된 사용자입니다."), 409
     else:
-        return api_response("success", "사용자명 사용 가능")
+        return api_response("success", "사용자명 사용 가능"), 200
 
 
 @app.route("/api/auth/signup", methods=["POST"])
@@ -78,13 +78,14 @@ def signup_api():
     data = request.get_json() or {}
     username = data.get('username')
     raw_password = data.get('password')
-    about = data.get('about')
-    hobby_list = data.get('hobby_list', [])
+    about_me = data.get('aboutMe')
+    hobbies = data.get('hobbies', [])
     mbti = data.get('mbti')
-    preferred_language = data.get('preferred_language')
-    introduction = data.get('introduction')
-
+    languages = data.get('languages')
+    about = data.get('about')
     user_choice = data.get('user_choice')
+
+    user_choice = "게임"
 
     # 비밀번호 해시
     password_bytes = str(raw_password).encode('utf-8')
@@ -97,11 +98,11 @@ def signup_api():
     db.users.insert_one({
         'username': username,
         'password': hashed_password,
-        'about': about,
-        'hobby_list': hobby_list,
+        'about_me': about_me,
+        'hobbies': hobbies,
         'mbti': mbti,
-        'preferred_language': preferred_language,
-        'introduction': introduction,
+        'languages': languages,
+        'about': about,
         'profile_url': image_url
     })
 
