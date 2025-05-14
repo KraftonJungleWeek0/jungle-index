@@ -46,10 +46,11 @@
       <!-- 헤더 카드 -->
       <header class="bg-white m-6 p-6 rounded-xl shadow-lg relative">
         <h1 class="text-3xl font-semibold text-center">
-          야생의 <span class="text-blue-600">{{ random_small_attr }}</span> 속성
+          야생의 <span class="text-green-600">{{ random_big_attr }} : {{ random_small_attr }}</span> 속성
           정글러가 나타났다!
         </h1>
         <button
+          onclick="location.reload(true)"
           class="absolute bottom-4 right-4 bg-gradient-to-r from-green-800 to-green-600 text-white px-6 py-3 rounded-xl shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105"
         >
           랜덤
