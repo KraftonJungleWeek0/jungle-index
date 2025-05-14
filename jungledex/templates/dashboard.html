@@ -15,16 +15,16 @@
         <div>
             <!-- <div class="text-xl font-semibold mb-4">정글덱스</div> -->
             <div class="flex items-center space-x-2">
-                <img src="{{ current_user.profile_image }}" alt="Profile"
+                <img src="{{ profile_url }}" alt="Profile"
                     class="w-12 h-12 rounded-full border-2 border-white shadow-md">
-                <div class="font-medium text-white text-sm">{{ current_user.username }}</div>
+                <div class="font-medium text-white text-sm">{{ username }}</div>
             </div>
         </div>
 
         <!-- 하단메뉴 div -->
         <nav class="space-y-4 mt-auto">
             <a href="/dashboard" class="block hover:text-gray-300">📊 대시보드</a>
-            <a href="/user_info/{{ current_user.username }}" class="block hover:text-gray-300">👤 마이페이지</a>
+            <a href="/user_info/{{ username }}" class="block hover:text-gray-300">👤 마이페이지</a>
             <button id="logoutBtn" class="block hover:text-red-400">🚪 로그아웃</a>
         </nav>
 
@@ -47,11 +47,11 @@
 
         <!-- 하단 div -->
         <div class="flex justify-around items-center flex-1 p-6 bg-gray-50 relative">
-            {% for user in users[:3] %}
+            <!-- 여기에 jinja 반복문 시작 -->
             <div class="relative flex flex-col items-center text-center cursor-pointer user-card"
-                data-username="{{ user.nickname }}">
+                data-username="{{ username }}">
                 <!-- 프로필 사진 -->
-                <img src="{{ user.profile_image }}" alt="Profile"
+                <img src="{{ profile_url }}" alt="Profile"
                     class="sm:w-32 sm:h-32 md:w-48 md:h-48 lg:w-64 lg:h-64 rounded-full border-4 border-gray-300 shadow-md">
 
                 <!-- 뱃지 아이콘 -->
@@ -62,9 +62,9 @@
                 </div>
 
                 <!-- 닉네임 -->
-                <p class="mt-4 font-medium text-gray-800">{{ user.nickname }}</p>
+                <p class="mt-4 font-medium text-gray-800">{{ username }}</p>
             </div>
-            {% endfor %}
+            <!-- 여기에 jinja 반복문 끝 -->
 
             <!-- 모달 -->
             <div id="quizModal"
