@@ -25,9 +25,14 @@ app = Flask(
     static_folder="jungledex/static",
     static_url_path="/static",
 )
+# 대카테고리 리스트
+category_list = ["취미", "MBTI", "선호 언어"]
+# 소카테고리 리스트
+hobby_attr_list = ["운동", "독서", "여행", "게임", "드라이브", "영화"]
+mbti_attr_list = ["E", "I", "S", "N", "T", "F", "J", "P"]
+lang_attr_list = ["Python", "JavaScript", "Java", "C++", "C#", "Go", "Rust", "Typescript", "Swift"]
 
-small_attr_list = ["운동", "독서", "여행", "게임", "드라이브", "영화"]
-
+category_attr_match_dict={"취미" : hobby_attr_list, "MBTI" : mbti_attr_list, "선호 언어" : lang_attr_list}
 
 def api_response(status: str, message: str, data: dict = None):
     payload = {"status": status, "message": message}
@@ -79,7 +84,8 @@ def dashboard_page():
     # 토큰에서 사용자 아이디(또는 username)를 꺼내서 템플릿에 전달
     current_user = get_jwt_identity()
 
-    random_big_attr = "취미"
+    random_big_attr = random.choice(category_list)
+    small_attr_list = category_attr_match_dict.get(random_big_attr)
     random_small_attr = random.choice(small_attr_list)
 
     # 1) 원본 커서 조회
