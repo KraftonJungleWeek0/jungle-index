@@ -1,31 +1,32 @@
-from flask import Flask, jsonify, render_template, request
-from dotenv import load_dotenv
-from pymongo import MongoClient
 import os
 from datetime import timedelta
-from flask import Flask, jsonify, make_response, request
-from pymongo import MongoClient
+
 import bcrypt
 from dotenv import load_dotenv
-import os
-from jungledex.oai.profile_image import generate_user_profile_image
-
+from flask import Flask, jsonify, make_response, render_template, request
 from flask_jwt_extended import (
-    set_access_cookies, create_access_token,
-    get_jwt_identity, jwt_required,
-    JWTManager, unset_jwt_cookies
+    JWTManager,
+    create_access_token,
+    get_jwt_identity,
+    jwt_required,
+    set_access_cookies,
+    unset_jwt_cookies,
 )
+from pymongo import MongoClient
 
+from jungledex.oai.profile_image import generate_user_profile_image
 
 load_dotenv()  # .env 파일 열기
 
 app = Flask(__name__, template_folder="jungledex/templates")
-    
+
+
 def api_response(status: str, message: str, data: dict = None):
     payload = {"status": status, "message": message}
     if data is not None:
         payload["data"] = data
     return make_response(jsonify(payload))
+
 
 # Flask-JWT-Extended 설정
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET")
@@ -43,17 +44,21 @@ mongo_uri = os.getenv("MONGO_URI")
 client = MongoClient(mongo_uri)
 db = client.jungleindex
 
-@app.route('/')
+
+@app.route("/")
 def hello():
     return render_template("landing.html")
+
 
 @app.route("/signin")
 def signin_page():
     return render_template("signin.html")
 
+
 @app.route("/signup")
 def signup_page():
     return render_template("signup.html")
+
 
 @app.route("/dashboard")
 @jwt_required()  # JWT 필수
@@ -62,12 +67,13 @@ def dashboard_page():
     current_user = get_jwt_identity()
     return render_template("dashboard.html", username=current_user)
 
+
 @app.route("/api/auth/check", methods=["POST"])
 def check_username():
     data = request.get_json() or {}
-    username = data.get('username')
+    username = data.get("username")
 
-    if db.users.find_one({'username': username}):
+    if db.users.find_one({"username": username}):
         return api_response("error", "이미 가입된 사용자입니다."), 409
     else:
         return api_response("success", "사용자명 사용 가능"), 200
@@ -76,35 +82,36 @@ def check_username():
 @app.route("/api/auth/signup", methods=["POST"])
 def signup_api():
     data = request.get_json() or {}
-    username = data.get('username')
-    raw_password = data.get('password')
-    about_me = data.get('aboutMe')
-    hobbies = data.get('hobbies', [])
-    mbti = data.get('mbti')
-    languages = data.get('languages')
-    about = data.get('about')
-    user_choice = data.get('user_choice')
-
-    user_choice = "게임"
+    username = data.get("username")
+    raw_password = data.get("password")
+    real_name = data.get("real_name")
+    about_me = data.get("aboutMe")
+    hobbies = data.get("hobbies", [])
+    mbti = data.get("mbti")
+    languages = data.get("languages")
+    user_choice = data.get("user_choice")
 
     # 비밀번호 해시
-    password_bytes = str(raw_password).encode('utf-8')
-    hashed_password = bcrypt.hashpw(password_bytes, bcrypt.gensalt()).decode('utf-8')
+    password_bytes = str(raw_password).encode("utf-8")
+    hashed_password = bcrypt.hashpw(password_bytes, bcrypt.gensalt()).decode("utf-8")
 
     # 프로필 이미지 생성
     image_url = generate_user_profile_image(user_choice)
 
     # 사용자 정보 저장
-    db.users.insert_one({
-        'username': username,
-        'password': hashed_password,
-        'about_me': about_me,
-        'hobbies': hobbies,
-        'mbti': mbti,
-        'languages': languages,
-        'about': about,
-        'profile_url': image_url
-    })
+    db.users.insert_one(
+        {
+            "username": username,
+            "password": hashed_password,
+            "real_name": real_name,
+            "about_me": about_me,
+            "hobbies": hobbies,
+            "mbti": mbti,
+            "languages": languages,
+            "profile_url": image_url,
+            "user_choice": user_choice,
+        }
+    )
 
     # 토큰 생성 및 응답
     access_token = create_access_token(identity=username)
@@ -113,20 +120,23 @@ def signup_api():
     set_access_cookies(resp, access_token, max_age=900)
     return resp
 
+
 @app.route("/api/auth/signin", methods=["POST"])
 def signin_api():
     data = request.get_json() or {}
-    username = data.get('username')
-    raw_password = data.get('password')
+    username = data.get("username")
+    raw_password = data.get("password")
 
     # 저장된 비밀번호 조회
-    user = db.users.find_one({'username': username})
+    user = db.users.find_one({"username": username})
     if not user:
         return api_response("error", "아이디 또는 비밀번호가 올바르지 않습니다."), 401
-    stored_password = user['password']
+    stored_password = user["password"]
 
     # 비밀번호 검증
-    if bcrypt.checkpw(str(raw_password).encode('utf-8'), stored_password.encode('utf-8')):
+    if bcrypt.checkpw(
+        str(raw_password).encode("utf-8"), stored_password.encode("utf-8")
+    ):
         access_token = create_access_token(identity=username)
         resp = api_response("success", "로그인에 성공했습니다.", {"username": username})
         resp.status_code = 200
@@ -134,6 +144,7 @@ def signin_api():
         return resp
 
     return api_response("error", "아이디 또는 비밀번호가 올바르지 않습니다."), 401
+
 
 @app.route("/api/auth/logout", methods=["POST"])
 @jwt_required()
@@ -143,5 +154,6 @@ def logout():
     resp.status_code = 200
     return resp
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.run(debug=True)

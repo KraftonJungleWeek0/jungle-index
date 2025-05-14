@@ -1,48 +1,132 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- ① 구글 폰트 추가 -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap"
+      rel="stylesheet"
+    />
     <title>정글덱스 | 로그인</title>
-</head>
+  </head>
+  <body class="flex bg-gray-100 items-center justify-center min-h-screen">
+    <main class="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
+      <!-- ① 페이지 상단에 로그인 페이지임을 알리는 문구 -->
+      <!-- ② Jungle 스타일 h1 -->
+      <h1 class="text-center text-5xl font-extrabold jungle-text mb-6">
+        JungleDex
+      </h1>
 
-<body class="flex bg-gray-100 items-center justify-center min-h-screen">
-    <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
-        <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-            <h2 class="mt-4 text-center text-2xl/9 font-bold tracking-tight text-gray-900">정글덱스</h2>
+      <!-- ② 유효성/에러 메시지 표시 영역 -->
+      <!-- <div id="alert" class="hidden mb-4 text-sm text-red-600"></div> -->
+
+      <form id="loginForm" class="space-y-6">
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-900"
+            >사용자명</label
+          >
+          <input
+            type="text"
+            name="username"
+            id="username"
+            autocomplete="username"
+            required
+            class="block w-full rounded-md px-3 py-2 ring-1 ring-gray-300 focus:ring-2 focus:ring-indigo-600"
+          />
+        </div>
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-900"
+            >비밀번호</label
+          >
+          <input
+            type="password"
+            name="password"
+            id="password"
+            autocomplete="current-password"
+            required
+            class="block w-full rounded-md px-3 py-2 ring-1 ring-gray-300 focus:ring-2 focus:ring-indigo-600"
+          />
         </div>
 
-        <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-            <form action="/dashboard" method="POST" class="space-y-6">
-                <!-- 사용자명 -->
-                <div>
-                    <label for="username" class="block text-sm font-medium text-gray-900">사용자명</label>
-                    <input type="text" name="username" id="username" required
-                        class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-                </div>
+        <!-- ② 유효성/에러 메시지 표시 영역 (비밀번호 칸 아래로 이동) -->
+        <div id="alert" class="hidden text-center text-sm text-red-600"></div>
 
-                <!-- PW -->
-                <div>
-                    <label for="password" class="block text-sm/6 font-medium text-gray-900">비밀번호</label>
-                    <input type="password" name="password" id="password" required
-                        class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+        <!-- 로그인 버튼 -->
+        <button
+          id="loginBtn"
+          type="submit"
+          class="w-full relative inline-flex items-center justify-center rounded-md px-3 py-2 text-white font-semibold disabled:opacity-50 bg-gradient-to-r from-green-800 to-green-600 hover:from-green-900 hover:to-green-700"
+        >
+          <span class="btn-text">로그인</span>
+        </button>
 
-                </div>
+        <!-- 회원가입 안내 문구 -->
+        <p class="text-sm text-gray-500 text-center">
+          도감에 아직 등록하지 않으셨나요?
+          <a href="/signup" class="font-bold hover:underline">회원가입</a>
+        </p>
+      </form>
+    </main>
 
-                <!-- 회원가입, 로그인 -->
-                <div class="flex items-center justify-between">
-                    <a href="/signup" class="font-semibold text-gray-500 hover:text-indigo-500">회원가입</a>
+    <style>
+      /* ③ Jungle 폰트, 그라데이션, 텍스트 음영 */
+      .jungle-text {
+        font-family: "Permanent Marker", cursive;
+        background: linear-gradient(45deg, #2f855a, #a3e635);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 2px 2px 0 rgba(34, 84, 61, 0.8),
+          4px 4px 8px rgba(0, 0, 0, 0.4);
+      }
+    </style>
 
-                    <button type="submit"
-                        class="rounded-md bg-indigo-600 px-3 py-1.5 text-base font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                        로그인
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</body>
+    <script>
+      $("#loginForm").on("submit", function (e) {
+        e.preventDefault();
+        const $alert = $("#alert");
+        const user = $("#username").val().trim();
+        const pass = $("#password").val().trim();
 
+        // ② 입력 검증
+        if (!user || !pass) {
+          $alert.text("아이디와 비밀번호를 모두 입력해주세요.").show();
+          return;
+        }
+        $alert.hide();
+
+        // ④ 버튼 스피너 표시
+        const $btn = $("#loginBtn");
+        $btn.prop("disabled", true);
+        $btn
+          .find(".btn-text")
+          .html(
+            '<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>'
+          );
+
+        // ③ AJAX 요청
+        $.ajax({
+          url: "/api/auth/signin",
+          method: "POST",
+          contentType: "application/json",
+          data: JSON.stringify({ username: user, password: pass }),
+          success(res) {
+            // 로그인 성공 → 대시보드 이동
+            window.location.href = "/dashboard";
+          },
+          error(err) {
+            // ⑤ 로그인 실패 시 메시지
+            $alert.text("아이디 또는 비밀번호가 잘못되었습니다.").show();
+          },
+          complete() {
+            // 버튼 원상복구
+            $btn.prop("disabled", false);
+            $btn.find(".btn-text").text("로그인");
+          },
+        });
+      });
+    </script>
+  </body>
 </html>

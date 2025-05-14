@@ -1,318 +1,798 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- jQuery & Tailwind -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <title>정글덱스 | 회원가입</title>
-</head>
-<body class="flex bg-gray-100 items-center justify-center min-h-screen">
-
-  <!-- 로딩 모달 -->
-  <div
-    id="loadingModal"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50"
-  >
-    <div class="bg-white p-6 rounded-lg shadow-lg">
-      <p id="loadingTip" class="text-gray-800 text-center">
-        <!-- JS에서 순환될 텍스트가 들어갑니다 -->
-      </p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- jQuery & Tailwind -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>정글덱스 | 회원가입</title>
+  </head>
+  <body class="flex bg-gray-100 items-center justify-center min-h-screen">
+    <!-- 로딩 모달 -->
+    <div
+      id="loadingModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50"
+    >
+      <div class="bg-white p-6 rounded-lg shadow-lg">
+        <p id="loadingTip" class="text-gray-800 text-center">
+          <!-- JS에서 순환될 텍스트가 들어갑니다 -->
+        </p>
+      </div>
     </div>
-  </div>
 
-  <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
-    <h2 class="text-center text-2xl font-bold mb-6">정글덱스 회원가입</h2>
-
-    <!-- ============= STEP 1: 사용자명 입력 ============= -->
-    <form id="step1Form" class="space-y-4">
-      <div>
-        <label for="username" class="block text-sm font-medium text-gray-900">
-          사용자명
-        </label>
-        <input
-          type="text"
-          id="username"
-          name="username"
-          required
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-        />
-      </div>
-      <button
-        type="button"
-        id="step1Next"
-        class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-500"
+    <!-- 확인 모달 -->
+    <div
+      id="confirmModal"
+      class="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 flex justify-center flex-col"
       >
-        다음
-      </button>
-    </form>
-
-    <!-- STEP 2: 비밀번호 설정 -->
-    <form id="step2Form" class="space-y-4 hidden">
-      <div>
-        <label for="password" class="block text-sm font-medium text-gray-900">비밀번호</label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-        />
+        <h3 class="text-2xl font-semibold mb-6 text-gray-800 text-center">
+          다음과 같은 정보로 도감에 등록합니다 🌿
+        </h3>
+        <div class="mb-6">
+          <p
+            id="summaryText"
+            class="text-sm text-gray-700 leading-relaxed whitespace-pre-line border border-gray-200 rounded-lg p-4 bg-gray-50"
+          ></p>
+          <div id="confirmError" class="hidden text-red-600"></div>
+        </div>
+        <div class="mb-6">
+          <p class="text-base font-medium mb-3 text-gray-800">
+            자신을 나타낼 대표 속성을 선택해주세요 🔥
+          </p>
+          <div id="choiceList" class="flex flex-wrap gap-3"></div>
+        </div>
+        <div class="flex justify-end space-x-4">
+          <button
+            id="confirmCancel"
+            class="px-5 py-2 font-medium bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+          >
+            취소
+          </button>
+          <button
+            id="confirmOk"
+            class="px-5 py-2 font-medium text-white rounded-lg shadow bg-gradient-to-r from-green-800 to-green-600 hover:from-green-900 hover:to-green-700 transition"
+          >
+            확인
+          </button>
+        </div>
       </div>
-      <div>
-        <label for="passwordConfirm" class="block text-sm font-medium text-gray-900">비밀번호 확인</label>
-        <input
-          type="password"
-          id="passwordConfirm"
-          name="passwordConfirm"
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-        />
+    </div>
+
+    <!-- 성공 모달 -->
+    <div
+      id="successModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50"
+    >
+      <div
+        class="bg-white w-11/12 max-w-sm p-6 rounded-lg shadow-lg text-center"
+      >
+        <h3 class="text-lg font-bold mb-4 text-green-600">
+          정글 도감에 성공적으로 등록되었습니다!
+        </h3>
+        <p class="text-sm text-gray-700">정글에 뛰어들 준비 중...</p>
       </div>
+    </div>
 
-      <!-- 에러 메시지 영역 -->
-      <div id="step2Error" class="hidden text-red-600 text-sm"></div>
+    <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
+      <h2 class="text-center text-2xl font-bold mb-6">JungleDex 도감 등록</h2>
 
-      <div class="flex gap-2">
-        <button type="button" id="step2Prev" class="flex-1 bg-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-200">
-          이전
-        </button>
-        <button type="submit" id="step2Next" class="flex-1 bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-500">
+      <!-- ============= STEP 1: 사용자명 입력 ============= -->
+      <form id="step1Form" class="space-y-4">
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-900">
+            사용자명
+          </label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            required
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+          />
+        </div>
+        <!-- ↓ 이 부분 추가 -->
+        <div id="step1Error" class="hidden text-red-600 text-sm mt-1"></div>
+        <button
+          type="button"
+          id="step1Next"
+          class="w-full relative inline-flex items-center justify-center rounded-md px-3 py-2 text-white font-semibold disabled:opacity-50 bg-gradient-to-r from-green-800 to-green-600 hover:from-green-900 hover:to-green-700"
+        >
           다음
         </button>
-      </div>
-    </form>
+      </form>
 
-    <!-- ======== STEP 3: 추가 정보 & 최종 제출 ======== -->
-    <form
-      id="step3Form"
-      class="space-y-4 hidden"
-      action="/dashboard"
-      method="POST"
-    >
-      <div>
-        <label for="aboutMe" class="block text-sm font-medium text-gray-700">
-          한 마디
-        </label>
-        <textarea
-          id="aboutMe"
-          name="aboutMe"
-          required
-          maxlength="50"
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-          placeholder="나를 소개할 한마디..."
-        ></textarea>
-      </div>
-
-      <div>
-        <p class="block text-sm font-medium text-gray-700">
-          취미 (최소 1개 선택)
-        </p>
-        <div class="flex flex-wrap gap-2 mt-1">
-          <label class="flex items-center space-x-2">
-            <input type="checkbox" name="hobby" value="운동" />
-            <span>운동</span>
-          </label>
-          <label class="flex items-center space-x-2">
-            <input type="checkbox" name="hobby" value="독서" />
-            <span>독서</span>
-          </label>
-          <label class="flex items-center space-x-2">
-            <input type="checkbox" name="hobby" value="음악 감상" />
-            <span>음악감상</span>
-          </label>
-          <label class="flex items-center space-x-2">
-            <input type="checkbox" name="hobby" value="여행" />
-            <span>여행</span>
-          </label>
+      <!-- STEP 2: 비밀번호 설정 -->
+      <form id="step2Form" class="space-y-4 hidden">
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-900"
+            >비밀번호</label
+          >
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+          />
         </div>
-      </div>
+        <div>
+          <label
+            for="passwordConfirm"
+            class="block text-sm font-medium text-gray-900"
+            >비밀번호 확인</label
+          >
+          <input
+            type="password"
+            id="passwordConfirm"
+            name="passwordConfirm"
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+          />
+        </div>
 
-      <div>
-        <p class="block text-sm font-medium text-gray-700">
-          MBTI (4축 모두 선택)
-        </p>
-        <div class="grid grid-cols-2 gap-4 mt-1 text-sm">
-          <!-- 외향/내향 -->
-          <div>
-            <p class="text-xs text-gray-600 mb-1">외향/내향</p>
-            <label class="inline-flex items-center space-x-1"><input type="radio" name="ei" value="E" /><span>E</span></label>
-            <label class="inline-flex items-center space-x-1"><input type="radio" name="ei" value="I" /><span>I</span></label>
+        <!-- 에러 메시지 영역 -->
+        <div id="step2Error" class="hidden text-red-600 text-sm"></div>
+
+        <div class="flex gap-2">
+          <button
+            type="button"
+            id="step2Prev"
+            class="flex-1 bg-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-200"
+          >
+            이전
+          </button>
+          <button
+            type="submit"
+            id="step2Next"
+            class="flex-1 text-white py-2 rounded-md bg-gradient-to-r from-green-800 to-green-600 hover:from-green-900 hover:to-green-700"
+          >
+            다음
+          </button>
+        </div>
+      </form>
+
+      <!-- ======== STEP 3: 추가 정보 & 최종 제출 ======== -->
+      <form
+        id="step3Form"
+        class="space-y-4 hidden"
+        action="/dashboard"
+        method="POST"
+      >
+        <div>
+          <div id="signupError" class="hidden text-red-600 mb-4"></div>
+          <label for="real_name" class="block text-sm font-medium text-gray-700"
+            >이름</label
+          >
+          <input
+            type="text"
+            name="real_name"
+            id="real_name"
+            required
+            class="mt-1 block w-full rounded-md px-3 py-2 ring-1 ring-gray-300 focus:ring-2 focus:ring-green-600"
+          />
+        </div>
+        <div>
+          <label for="aboutMe" class="block text-sm font-medium text-gray-700">
+            간단한 소개
+          </label>
+          <textarea
+            id="aboutMe"
+            name="aboutMe"
+            required
+            maxlength="50"
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            placeholder="나를 소개할 한마디... (TMI)"
+          ></textarea>
+        </div>
+
+        <div>
+          <p class="block text-sm font-medium text-gray-700">취미</p>
+          <!-- 수정 후: 각 체크박스+레이블을 별도 Wrapper(div)로 감쌈 -->
+          <div class="flex flex-wrap gap-2 mt-1">
+            <div class="inline-block">
+              <input
+                type="checkbox"
+                id="hobby-운동"
+                name="hobby"
+                value="운동"
+                class="hidden peer"
+              />
+              <label
+                for="hobby-운동"
+                class="cursor-pointer px-3 py-1 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white transform transition hover:scale-105"
+              >
+                🏃‍♂️ 운동
+              </label>
+            </div>
+
+            <div class="inline-block">
+              <input
+                type="checkbox"
+                id="hobby-독서"
+                name="hobby"
+                value="독서"
+                class="hidden peer"
+              />
+              <label
+                for="hobby-독서"
+                class="cursor-pointer px-3 py-1 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white transform transition hover:scale-105"
+              >
+                📚 독서
+              </label>
+            </div>
+
+            <div class="inline-block">
+              <input
+                type="checkbox"
+                id="hobby-영화"
+                name="hobby"
+                value="영화"
+                class="hidden peer"
+              />
+              <label
+                for="hobby-영화"
+                class="cursor-pointer px-3 py-1 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white transform transition hover:scale-105"
+              >
+                🍿 영화
+              </label>
+            </div>
+
+            <div class="inline-block">
+              <input
+                type="checkbox"
+                id="hobby-여행"
+                name="hobby"
+                value="여행"
+                class="hidden peer"
+              />
+              <label
+                for="hobby-여행"
+                class="cursor-pointer px-3 py-1 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white transform transition hover:scale-105"
+              >
+                ✈️ 여행
+              </label>
+            </div>
+
+            <!-- 나머지도 동일하게 묶어서… -->
           </div>
-          <!-- 감각/직관 -->
-          <div>
-            <p class="text-xs text-gray-600 mb-1">감각/직관</p>
-            <label class="inline-flex items-center space-x-1"><input type="radio" name="sn" value="S" /><span>S</span></label>
-            <label class="inline-flex items-center space-x-1"><input type="radio" name="sn" value="N" /><span>N</span></label>
-          </div>
-          <!-- 사고/감정 -->
-          <div>
-            <p class="text-xs text-gray-600 mb-1">사고/감정</p>
-            <label class="inline-flex items-center space-x-1"><input type="radio" name="tf" value="T" /><span>T</span></label>
-            <label class="inline-flex items-center space-x-1"><input type="radio" name="tf" value="F" /><span>F</span></label>
-          </div>
-          <!-- 판단/인식 -->
-          <div>
-            <p class="text-xs text-gray-600 mb-1">판단/인식</p>
-            <label class="inline-flex items-center space-x-1"><input type="radio" name="jp" value="J" /><span>J</span></label>
-            <label class="inline-flex items-center space-x-1"><input type="radio" name="jp" value="P" /><span>P</span></label>
+          <div id="hobbyError" class="hidden text-red-600 text-sm mt-1">
+            최소 1개 이상 선택해주세요.
           </div>
         </div>
-      </div>
 
-      <div>
-        <label for="languages" class="block text-sm font-medium text-gray-700">선호 언어</label>
-        <select
-          id="languages"
-          name="languages"
-          required
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-        >
-          <option value="">선택해주세요</option>
-          <option>Python</option>
-          <option>JavaScript</option>
-          <option>Java</option>
-          <option>C++</option>
-          <option>Go</option>
-          <option>Rust</option>
-          <option>TypeScript</option>
-          <option>Swift</option>
-          <option>Kotlin</option>
-        </select>
-      </div>
+        <p class="block text-sm font-medium text-gray-700">MBTI</p>
+        <div class="grid grid-cols-2 gap-4 mt-1">
+          <!-- 각 버튼을 가로로 꽉 채우고 텍스트 중앙 정렬 -->
+          <div>
+            <input
+              type="radio"
+              id="mbti-E"
+              name="ei"
+              value="E"
+              class="hidden peer"
+            />
+            <label
+              for="mbti-E"
+              class="cursor-pointer w-full block px-3 py-2 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white text-center transform transition hover:scale-105"
+              >E</label
+            >
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="mbti-I"
+              name="ei"
+              value="I"
+              class="hidden peer"
+            />
+            <label
+              for="mbti-I"
+              class="cursor-pointer w-full block px-3 py-2 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white text-center transform transition hover:scale-105"
+              >I</label
+            >
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="mbti-S"
+              name="sn"
+              value="S"
+              class="hidden peer"
+            />
+            <label
+              for="mbti-S"
+              class="cursor-pointer w-full block px-3 py-2 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white text-center transform transition hover:scale-105"
+              >S</label
+            >
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="mbti-N"
+              name="sn"
+              value="N"
+              class="hidden peer"
+            />
+            <label
+              for="mbti-N"
+              class="cursor-pointer w-full block px-3 py-2 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white text-center transform transition hover:scale-105"
+              >N</label
+            >
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="mbti-T"
+              name="tf"
+              value="T"
+              class="hidden peer"
+            />
+            <label
+              for="mbti-T"
+              class="cursor-pointer w-full block px-3 py-2 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white text-center transform transition hover:scale-105"
+              >T</label
+            >
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="mbti-F"
+              name="tf"
+              value="F"
+              class="hidden peer"
+            />
+            <label
+              for="mbti-F"
+              class="cursor-pointer w-full block px-3 py-2 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white text-center transform transition hover:scale-105"
+              >F</label
+            >
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="mbti-J"
+              name="jp"
+              value="J"
+              class="hidden peer"
+            />
+            <label
+              for="mbti-J"
+              class="cursor-pointer w-full block px-3 py-2 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white text-center transform transition hover:scale-105"
+              >J</label
+            >
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="mbti-P"
+              name="jp"
+              value="P"
+              class="hidden peer"
+            />
+            <label
+              for="mbti-P"
+              class="cursor-pointer w-full block px-3 py-2 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white text-center transform transition hover:scale-105"
+              >P</label
+            >
+          </div>
+        </div>
 
-      <div>
-        <label for="about" class="block text-sm font-medium text-gray-700">추가로 하고 싶은 말</label>
-        <textarea
-          id="about"
-          name="about"
-          placeholder="추가로 하고 싶은 말"
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-        ></textarea>
-      </div>
+        <!-- STEP 3: 선호 언어 -->
+        <div>
+          <p class="block text-sm font-medium text-gray-700">선호 언어</p>
+          <!-- 라디오 버튼으로 변경: 하나만 선택 -->
+          <div class="flex flex-wrap gap-2 mt-1">
+            <div class="inline-block">
+              <input
+                type="radio"
+                id="lang-python"
+                name="languages"
+                value="Python"
+                class="hidden peer"
+              />
+              <label
+                for="lang-python"
+                class="cursor-pointer px-3 py-1 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white transform transition hover:scale-105"
+                >Python</label
+              >
+            </div>
+            <div class="inline-block">
+              <input
+                type="radio"
+                id="lang-js"
+                name="languages"
+                value="JavaScript"
+                class="hidden peer"
+              />
+              <label
+                for="lang-js"
+                class="cursor-pointer px-3 py-1 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white transform transition hover:scale-105"
+                >JavaScript</label
+              >
+            </div>
+            <div class="inline-block">
+              <input
+                type="radio"
+                id="lang-java"
+                name="languages"
+                value="Java"
+                class="hidden peer"
+              />
+              <label
+                for="lang-java"
+                class="cursor-pointer px-3 py-1 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white transform transition hover:scale-105"
+                >Java</label
+              >
+            </div>
+            <div class="inline-block">
+              <input
+                type="radio"
+                id="lang-cpp"
+                name="languages"
+                value="C++"
+                class="hidden peer"
+              />
+              <label
+                for="lang-cpp"
+                class="cursor-pointer px-3 py-1 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white transform transition hover:scale-105"
+                >C++</label
+              >
+            </div>
+            <div class="inline-block">
+              <input
+                type="radio"
+                id="lang-csharp"
+                name="languages"
+                value="C#"
+                class="hidden peer"
+              />
+              <label
+                for="lang-csharp"
+                class="cursor-pointer px-3 py-1 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white transform transition hover:scale-105"
+                >C#</label
+              >
+            </div>
+            <div class="inline-block">
+              <input
+                type="radio"
+                id="lang-go"
+                name="languages"
+                value="Go"
+                class="hidden peer"
+              />
+              <label
+                for="lang-go"
+                class="cursor-pointer px-3 py-1 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white transform transition hover:scale-105"
+                >Go</label
+              >
+            </div>
+            <div class="inline-block">
+              <input
+                type="radio"
+                id="lang-rust"
+                name="languages"
+                value="Rust"
+                class="hidden peer"
+              />
+              <label
+                for="lang-rust"
+                class="cursor-pointer px-3 py-1 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white transform transition hover:scale-105"
+                >Rust</label
+              >
+            </div>
+            <div class="inline-block">
+              <input
+                type="radio"
+                id="lang-typescript"
+                name="languages"
+                value="Typescript"
+                class="hidden peer"
+              />
+              <label
+                for="lang-typescript"
+                class="cursor-pointer px-3 py-1 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white transform transition hover:scale-105"
+                >Typescript</label
+              >
+            </div>
+            <div class="inline-block">
+              <input
+                type="radio"
+                id="lang-swift"
+                name="languages"
+                value="Swift"
+                class="hidden peer"
+              />
+              <label
+                for="lang-swift"
+                class="cursor-pointer px-3 py-1 rounded-full border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white transform transition hover:scale-105"
+                >Swift</label
+              >
+            </div>
+          </div>
+          <div id="langError" class="hidden text-red-600 text-sm mt-1">
+            언어를 하나 선택해주세요.
+          </div>
+        </div>
 
-      <div class="flex gap-2">
-        <button type="button" id="step3Prev" class="flex-1 bg-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-200">이전</button>
-        <button type="submit" class="flex-1 bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-500">완료</button>
-      </div>
-    </form>
+        <div class="flex gap-2">
+          <button
+            type="button"
+            id="step3Prev"
+            class="flex-1 bg-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-200"
+          >
+            이전
+          </button>
+          <button
+            type="submit"
+            class="flex-1 text-white py-2 rounded-md bg-gradient-to-r from-green-800 to-green-600 hover:from-green-900 hover:to-green-700"
+          >
+            완료
+          </button>
+        </div>
+      </form>
 
-    <p class="mt-6 text-center">
-      <a href="/signin" class="text-indigo-600 hover:underline">로그인 화면으로 돌아가기</a>
-    </p>
-  </div>
+      <p class="mt-6 text-center text-sm">
+        <span>도감에 이미 등록되어있으신가요?</span>
+        <a href="/signin" class="hover:underline font-bold">로그인</a>
+      </p>
+    </div>
 
-  <script>
+    <script>
+      $(function () {
+        // ------------------------------
+        // 로딩 모달 & 팁 순환 함수 정의
+        // ------------------------------
+        const loadingTips = [
+          "Tip: 정글에서 살아남기 위해 여러 정글러들을 만나보세요",
+          "Tip: 정글몬이 불쑥 튀어나와도 놀라지 마세요",
+          "Tip: 정글 도감을 인쇄하는 중...",
+          "Tip: 주기적으로 정글을 탐험해보세요",
+        ];
+        let tipIndex = 0,
+          tipInterval;
 
-    $(function() {
-      // ------------------------------
-      // 로딩 모달 & 팁 순환 함수 정의
-      // ------------------------------
-      const loadingTips = [
-        "Tip: 정글에서 살아남기 위해 여러 정글러들을 만나보세요",
-        "Tip: 정글몬이 불쑥 튀어나와도 놀라지 마세요",
-        "Tip: 정글 도감을 인쇄하는 중...",
-        "Tip: 주기적으로 정글을 탐험해보세요"
-      ];
-      let tipIndex = 0, tipInterval;
-
-      function showLoading() {
-        $('#loadingTip').text(loadingTips[tipIndex]);
-        tipIndex = (tipIndex + 1) % loadingTips.length;
-        $('#loadingModal').removeClass('hidden');
-        tipInterval = setInterval(() => {
-          $('#loadingTip').text(loadingTips[tipIndex]);
+        function showLoading() {
+          $("#loadingTip").text(loadingTips[tipIndex]);
           tipIndex = (tipIndex + 1) % loadingTips.length;
-        }, 3000);
-      }
-
-      function hideLoading() {
-        clearInterval(tipInterval);
-        $('#loadingModal').addClass('hidden');
-      }
-      // ------------------------------
-
-      // ------------------------------
-      // 1) 초기화: step1만 보이기 & 포커스
-      // ------------------------------
-      showStep(1);
-
-      // ------------------------------
-      // 2) showStep 함수
-      // ------------------------------
-      function showStep(n) {
-        $('#step1Form, #step2Form, #step3Form').hide();
-        $(`#step${n}Form`).show();
-
-        if (n === 1) {
-          $('#username').focus();
-        } else if (n === 2) {
-          $('#password').focus();
-        } else if (n === 3) {
-          $('#aboutMe').focus();
+          $("#loadingModal").removeClass("hidden");
+          tipInterval = setInterval(() => {
+            $("#loadingTip").text(loadingTips[tipIndex]);
+            tipIndex = (tipIndex + 1) % loadingTips.length;
+          }, 3000);
         }
-      }
 
-      // STEP1: Enter/Click
-      $('#step1Form').on('submit', function(e) {
-        e.preventDefault(); handleStep1Next();
-      });
-      $('#step1Next').on('click', handleStep1Next);
+        function hideLoading() {
+          clearInterval(tipInterval);
+          $("#loadingModal").addClass("hidden");
+        }
+        // ------------------------------
 
-      function handleStep1Next() {
-        const username = $('#username').val().trim();
-        if (!username) { alert('사용자명을 입력해주세요.'); $('#username').focus(); return; }
-        $.ajax({
-          url: '/api/auth/check', method: 'POST', contentType: 'application/json; charset=UTF-8',
-          data: JSON.stringify({ username }), dataType: 'json',
-          success() { showStep(2); }, error(xhr) { if (xhr.status===409) alert('이미 사용 중인 사용자명입니다.'); else alert('서버 오류'); }
-        });
-      }
+        // ------------------------------
+        // 1) 초기화: step1만 보이기 & 포커스
+        // ------------------------------
+        showStep(1);
 
-      // STEP2: 이전/다음/Enter
-      $('#step2Prev').on('click', () => showStep(1));
-      function handleStep2Next() {
-        const pw  = $('#password').val(), pwc = $('#passwordConfirm').val();
-        $('#step2Error').hide().text('');
-        if (!pw||!pwc) { $('#step2Error').text('비밀번호와 확인을 모두 입력해주세요.').show(); return; }
-        if (pw!==pwc) { $('#step2Error').text('비밀번호가 일치하지 않습니다.').show(); return; }
-        showStep(3);
-      }
-      $('#password, #passwordConfirm').on('input', () => { $('#step2Error').hide().text(''); });
-      $('#step2Next').on('click', handleStep2Next);
-      $('#step2Form').on('submit', function(e) { e.preventDefault(); handleStep2Next(); });
+        // ------------------------------
+        // 2) showStep 함수
+        // ------------------------------
+        function showStep(n) {
+          $("#step1Form, #step2Form, #step3Form").hide();
+          $(`#step${n}Form`).show();
 
-      // STEP3: 이전
-      $('#step3Prev').on('click', () => showStep(2));
-
-      // STEP3: AJAX로 회원가입 요청
-      $('#step3Form').on('submit', function(e) {
-        e.preventDefault();
-        const username = $('#username').val().trim();
-        const password = $('#password').val();
-        const aboutMe  = $('#aboutMe').val().trim();
-        const hobbies  = $('input[name="hobby"]:checked').map(function() { return this.value; }).get();
-        const mbti     = ['ei','sn','tf','jp'].map(key => $(`input[name="${key}"]:checked`).val()).join('');
-        const languages= $('#languages').val();
-        const about    = $('#about').val().trim();
-
-        // 로딩 모달 표시
-        showLoading();
-
-        $.ajax({
-          url: '/api/auth/signup', method: 'POST', contentType: 'application/json; charset=UTF-8',
-          data: JSON.stringify({ username, password, aboutMe, hobbies, mbti, languages, about }), dataType: 'json',
-          success(res) {
-            // 완료 후 대시보드로 이동
-            window.location.href = '/dashboard';
-          },
-          error(xhr) {
-            hideLoading();
-            const msg = xhr.responseJSON?.message || '서버 오류가 발생했습니다.';
-            alert('회원가입 실패: ' + msg);
+          if (n === 1) {
+            $("#username").focus();
+          } else if (n === 2) {
+            $("#password").focus();
+          } else if (n === 3) {
+            $("#real_name").focus();
           }
+        }
+
+        // STEP1: Enter/Click
+        $("#step1Form").on("submit", function (e) {
+          e.preventDefault();
+          handleStep1Next();
+        });
+        $("#step1Next").on("click", handleStep1Next);
+
+        function handleStep1Next() {
+          const username = $("#username").val().trim();
+          if (!username) {
+            $("#step1Error")
+              .text("사용자명을 입력해주세요.")
+              .removeClass("hidden");
+            $("#username").focus();
+            return;
+          }
+          $.ajax({
+            url: "/api/auth/check",
+            method: "POST",
+            contentType: "application/json; charset=UTF-8",
+            data: JSON.stringify({ username }),
+            dataType: "json",
+            success() {
+              $("#step1Error").hide(); // 이전 오류 숨기고
+              showStep(2);
+            },
+            error(xhr) {
+              if (xhr.status === 409) {
+                $("#step1Error")
+                  .text("이미 사용 중인 사용자명입니다.")
+                  .removeClass("hidden");
+              } else {
+                $("#step1Error")
+                  .text("서버 오류가 발생했습니다.")
+                  .removeClass("hidden");
+              }
+            },
+          });
+        }
+
+        // STEP2: 이전/다음/Enter
+        $("#step2Prev").on("click", () => showStep(1));
+        function handleStep2Next() {
+          const pw = $("#password").val(),
+            pwc = $("#passwordConfirm").val();
+          $("#step2Error").hide().text("");
+          if (!pw || !pwc) {
+            $("#step2Error")
+              .text("비밀번호와 확인을 모두 입력해주세요.")
+              .show();
+            return;
+          }
+          if (pw !== pwc) {
+            $("#step2Error").text("비밀번호가 일치하지 않습니다.").show();
+            return;
+          }
+          showStep(3);
+        }
+        $("#password, #passwordConfirm").on("input", () => {
+          $("#step2Error").hide().text("");
+        });
+        $("#step2Next").on("click", handleStep2Next);
+        $("#step2Form").on("submit", function (e) {
+          e.preventDefault();
+          handleStep2Next();
+        });
+
+        // STEP3: 이전
+        $("#step3Prev").on("click", () => showStep(2));
+
+        // STEP3: 확인 모달 띄우기
+        $("#step3Form")
+          .off("submit")
+          .on("submit", function (e) {
+            e.preventDefault();
+            let ok = true;
+            if ($('input[name="hobby"]:checked').length < 1) {
+              $("#hobbyError").removeClass("hidden");
+              ok = false;
+            }
+            if (
+              !["ei", "sn", "tf", "jp"].every((k) =>
+                $('input[name="' + k + '"]:checked').val()
+              )
+            ) {
+              $("#mbtiError").removeClass("hidden");
+              ok = false;
+            }
+            if (!$('input[name="languages"]:checked').val()) {
+              $("#langError").removeClass("hidden");
+              ok = false;
+            }
+            if (!ok) return;
+
+            // 데이터 요약 및 대표 취미 선택 목록 생성
+            const username = $("#username").val().trim();
+            const password = $("#password").val();
+            const realName = $("#real_name").val().trim();
+            const aboutMe = $("#aboutMe").val().trim();
+            const hobbies = $('input[name="hobby"]:checked')
+              .map(function () {
+                return this.value;
+              })
+              .get();
+            const mbti = ["ei", "sn", "tf", "jp"]
+              .map((key) => $(`input[name="${key}"]:checked`).val())
+              .join("");
+            const languages = $('input[name="languages"]:checked')
+              .map(function () {
+                return this.value;
+              })
+              .get();
+
+            const summary = `사용자명: ${username}\n이름: ${realName}\n소개: ${aboutMe}\n취미: ${hobbies.join(
+              ", "
+            )}\nMBTI: ${mbti}\n선호 언어: ${languages.join(", ")}`;
+            $("#summaryText").text(summary);
+
+            const $choiceList = $("#choiceList").empty();
+            hobbies.forEach((h) => {
+              const id = "user_choice-" + h;
+              const $wrap = $("<div>").addClass("inline-block");
+              const $input = $("<input>")
+                .attr({ type: "radio", name: "user_choice", id: id, value: h })
+                .addClass("hidden peer");
+              const $label = $("<label>")
+                .attr("for", id)
+                .addClass(
+                  "cursor-pointer px-4 py-2 rounded-lg border border-gray-300 peer-checked:bg-green-600 peer-checked:text-white transition"
+                )
+                .text(h);
+              $wrap.append($input, $label);
+              $choiceList.append($wrap);
+            });
+
+            $("#confirmModal").removeClass("hidden");
+          });
+
+        // 확인 모달 취소
+        $("#confirmCancel").on("click", () =>
+          $("#confirmModal").addClass("hidden")
+        );
+
+        // 확인 모달 확인 -> AJAX 회원가입
+        $("#confirmOk").on("click", function () {
+          const rep = $('input[name="user_choice"]:checked').val();
+          if (!rep) {
+            $("#confirmModal .yourErrorSelector")
+              .text("대표 취미를 선택해주세요.")
+              .removeClass("hidden");
+            return;
+          }
+          $("#confirmModal").addClass("hidden");
+
+          showLoading();
+          $.ajax({
+            url: "/api/auth/signup",
+            method: "POST",
+            contentType: "application/json; charset=UTF-8",
+            dataType: "json",
+            data: JSON.stringify(
+              Object.assign(
+                {
+                  username: $("#username").val().trim(),
+                  password: $("#password").val(),
+                  real_name: $("#real_name").val().trim(),
+                  aboutMe: $("#aboutMe").val().trim(),
+                  hobbies: $('input[name="hobby"]:checked')
+                    .map(function () {
+                      return this.value;
+                    })
+                    .get(),
+                  mbti: ["ei", "sn", "tf", "jp"]
+                    .map((key) => $(`input[name="${key}"]:checked`).val())
+                    .join(""),
+                  languages: $('input[name="languages"]:checked')
+                    .map(function () {
+                      return this.value;
+                    })
+                    .get(),
+                },
+                { user_choice: rep }
+              )
+            ),
+            success() {
+              hideLoading();
+              $("#successModal").removeClass("hidden");
+              setTimeout(() => {
+                window.location.href = "/dashboard";
+              }, 2000);
+            },
+            error(xhr) {
+              hideLoading();
+              const msg =
+                xhr.responseJSON?.message || "서버 오류가 발생했습니다.";
+              $("#step3Form")
+                .find("#signupError")
+                .text("회원가입 실패: " + msg)
+                .removeClass("hidden");
+            },
+          });
         });
       });
-    });
-  </script>
-</body>
+    </script>
+  </body>
 </html>
