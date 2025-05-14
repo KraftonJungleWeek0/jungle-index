@@ -15,16 +15,16 @@
     <div class="flex flex-col items-center space-y-2">
       <div class="w-20 h-20 rounded-full bg-red-400 overflow-hidden">
         {% if user.get('profile_url') %}
-        <img src="{{ user.get('profile_url') }}" alt=""class="w-full h-full object-cover rounded-full">
+        <img src="{{ user.get('profile_url') }}" alt="" class="w-full h-full object-cover rounded-full">
         {% endif %}
       </div>
       <div class="text-sm mt-1">{{ user.get('username') }}</div>
     </div>
 
-    <nav class="flex flex-col gap-4 text-sm mb-4">
-      <a href="/" class="hover:underline">대시보드</a>
-      <a href="/myprofile" class="hover:underline">마이페이지</a>
-      <a href="/signin" class="hover:underline">로그아웃</a>
+    <nav class="space-y-4 mt-auto">
+      <a href="/dashboard" class="block hover:text-gray-300">📊 대시보드</a>
+      <a href="/my" class="block hover:text-gray-300">👤 마이페이지</a>
+      <button id="logoutBtn" class="block hover:text-red-400">🚪 로그아웃</a>
     </nav>
   </aside>
 
@@ -48,7 +48,7 @@
 
         <div class="font-semibold">좋아하는 취미</div>
         <div>
-          {{ ", ".join(user.get('hobby_list', [])) }}
+          {{ ", ".join(user.get('hobbies', [])) }}
         </div>
         <div></div>
 
@@ -56,7 +56,7 @@
         <div>{{ user.get('mbti') }}</div>
         <div></div>
         <div class="font-semibold">선호 언어</div>
-        <div>{{ user.get('language') }}</div>
+        <div>{{ ", ".join(user.get('languages',[])) }}</div>
         <div></div>
       </div>
       <hr class="mt-10 border-black" />
@@ -75,14 +75,36 @@
               class="w-full h-full object-cover rounded-full">
             {% endif %}
           </div>
-          <div class="text-xs mt-2 text-center">{{ u.get('username') }}</div>
+          <div class="text-xs mt-2 text-center">
+            <a href="/user/{{u.get('username')}}"
+              class="block px-4 py-1 rounded-xl bg-white shadow hover:bg-blue-100 hover:text-blue-600 hover:underline transition duration-200">
+              {{ u.get('username') }}
+            </a>
+          </div>
+          {% endfor %}
         </div>
-        {% endfor %}
-      </div>
     </section>
 
   </main>
 
 </body>
+<script>
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    try {
+      const res = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'  // 쿠키 전송
+      });
+      if (res.ok) {
+        // 로그아웃 성공 시 홈으로 이동
+        window.location.href = '/';
+      } else {
+        console.error('로그아웃 실패:', res.status, await res.text());
+      }
+    } catch (err) {
+      console.error('네트워크 에러:', err);
+    }
+  });
+</script>
 
 </html>

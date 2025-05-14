@@ -156,29 +156,32 @@ def logout():
     resp.status_code = 200
     return resp
 
-@app.route('/user')
-def user_profile():
+@app.route('/user/<username>')
+@jwt_required()
+def user_profile(username):
     # 토큰에서 사용자 아이디(또는 username)를 꺼내서 템플릿에 전달
     current_user = get_jwt_identity()
     user = db.users.find_one({"username":current_user})
-    data = request.get_json() or {}
-    username = data.get('username')
-
+    print(username)
     doc = db.users.find_one({'username':username})
     
-    return render_template("user_info2.html", user=user,another_user = doc)
+    return render_template("user.html", user=user,another_user = doc)
 
 @app.route('/my')
+@jwt_required()  # JWT 필수
 def my_profile():
     current_user = get_jwt_identity()
-    
-    user = db.users.find({"username":current_user})
-    user_list = user['captured_users']
+    user = db.users.find_one({"username":current_user})
+    if user :
+        user_list = user['captured_users']
+    else :
+        user_list = []
+    doc_list = []
+    for i in user_list:
+        doc_list.append(db.users.find_one({"username":i}))
     #user_list는 도감에 등록된 user를 받아와야 해서 추후에 가능 일단 막바로 
-    user_list = []
-
     
-    return render_template("myprofile.html",user=user,user_list=user_list)
+    return render_template("myprofile.html",user=user,user_list=doc_list)
 
 if __name__ == "__main__":
     app.run(debug=True)
