@@ -37,7 +37,28 @@ app = Flask(
 # 대카테고리 리스트
 category_list = ["취미", "MBTI", "선호 언어"]
 # 소카테고리 리스트
-hobby_attr_list = ["스케이트 보딩","여행","테니스", "독서", "헬스", "게임", "드라이브", "요리", "음악", "미술", "무술", "춤", "축구", "요가", "러닝", "코딩", "클라이밍","골프","스키","영화"]
+hobby_attr_list = [
+    "스케이트 보딩",
+    "여행",
+    "테니스",
+    "독서",
+    "헬스",
+    "게임",
+    "드라이브",
+    "요리",
+    "음악",
+    "미술",
+    "무술",
+    "춤",
+    "축구",
+    "요가",
+    "러닝",
+    "코딩",
+    "클라이밍",
+    "골프",
+    "스키",
+    "영화",
+]
 mbti_attr_list = ["E", "I", "S", "N", "T", "F", "J", "P"]
 lang_attr_list = [
     "Python",
@@ -58,28 +79,28 @@ category_attr_match_dict = {
 }
 
 hobby_emoji_match_dict = {
-    "러닝":"🏃‍♂️",
-    "독서":"📚",
-    "테니스":"🎾",
-    "게임":"🎮",
-    "헬스":"🏋️‍♀️",
-    "클라이밍":"🧗",
-    "코딩":"👨‍💻",
-    "춤":"💃",
-    "무술":"🥊",
-    "음악":"🎧",
-    "요리":"👩‍🍳",
-    "드라이브":"🚙",
-    "여행":"✈️",
-    "영화":"🍿",
-    "요가":"🧘‍♀️",
-    "축구":"⚽️",
-    "미술":"🎨",
-    "스키":"⛷️",
-    "스케이트 보딩":"🛹",
-    "골프":"⛳️"
-
+    "러닝": "🏃‍♂️",
+    "독서": "📚",
+    "테니스": "🎾",
+    "게임": "🎮",
+    "헬스": "🏋️‍♀️",
+    "클라이밍": "🧗",
+    "코딩": "👨‍💻",
+    "춤": "💃",
+    "무술": "🥊",
+    "음악": "🎧",
+    "요리": "👩‍🍳",
+    "드라이브": "🚙",
+    "여행": "✈️",
+    "영화": "🍿",
+    "요가": "🧘‍♀️",
+    "축구": "⚽️",
+    "미술": "🎨",
+    "스키": "⛷️",
+    "스케이트 보딩": "🛹",
+    "골프": "⛳️",
 }
+
 
 def api_response(status: str, message: str, data: dict = None):
     payload = {"status": status, "message": message}
@@ -152,38 +173,35 @@ def profile_page():
 @app.route("/dashboard")
 @jwt_required()  # JWT 필수
 def dashboard_page():
-    # 토큰에서 사용자 아이디(또는 username)를 꺼내서 템플릿에 전달
+    # 1) 토큰에서 현재 사용자 가져오기
     current_user = get_jwt_identity()
 
+    # 2) 현재 사용자의 도감(captured_users) 리스트 불러오기
+    user_doc = db.users.find_one({"username": current_user})
+    captured_list = user_doc.get("captured_users", [])
+
+    # 3) 본인과 이미 캡처한 유저를 모두 제외하기 위한 리스트
+    exclude_list = [current_user] + captured_list
+
+    # 4) 랜덤 속성 선택
     random_big_attr = random.choice(category_list)
     small_attr_list = category_attr_match_dict.get(random_big_attr)
     random_small_attr = random.choice(small_attr_list)
 
-    # 1) 원본 커서 조회
-    # raw_users 단계에서 current_user를 제외
-    if random_big_attr == "취미":
-        raw_users = db.users.find(
-            {
-                "hobbies": random_small_attr,
-                "username": {"$ne": current_user},  # current_user가 아닌 문서만 조회
-            }
-        )
-    elif random_big_attr == "MBTI":
-        raw_users = db.users.find(
-            {
-                "mbti": {"$regex": random_small_attr, "$options": "i"},
-                "username": {"$ne": current_user},  # current_user가 아닌 문서만 조회
-            }
-        )
-    elif random_big_attr == "선호 언어":
-        raw_users = db.users.find(
-            {
-                "languages": random_small_attr,
-                "username": {"$ne": current_user},  # current_user가 아닌 문서만 조회
-            }
-        )
+    # 5) 공통 필터: username이 exclude_list에 들어있지 않아야 함
+    base_filter = {"username": {"$nin": exclude_list}}
 
-    # 2) 필요한 필드만 뽑아서 새 리스트 생성
+    if random_big_attr == "취미":
+        base_filter["hobbies"] = random_small_attr
+    elif random_big_attr == "MBTI":
+        base_filter["mbti"] = {"$regex": random_small_attr, "$options": "i"}
+    else:  # 선호 언어
+        base_filter["languages"] = random_small_attr
+
+    # 6) 필터 적용해서 조회
+    raw_users = db.users.find(base_filter)
+
+    # 7) 필요한 필드만 뽑아서 새 리스트 생성
     target_attr_users = [
         {
             "username": u["username"],
@@ -193,7 +211,8 @@ def dashboard_page():
         for u in raw_users
     ]
 
-    user = db.users.find_one({"username": current_user})
+    # 8) 본인 정보 조회(프로필 URL 등)
+    user = user_doc  # 이미 조회해 뒀으므로 재조회하지 않아도 됩니다.
 
     return render_template(
         "dashboard.html",
@@ -309,7 +328,7 @@ def generate_quiz(username):
     else:  # 선호 언어
         answer = sub == user.get("languages")
 
-    quiz_str = f"{username}몬의 {main} 중 {sub}이다."
+    quiz_str = f"{username}몬의 {main} 중 하나가 바로 {sub}이에요."
     return (
         api_response(
             "success",
