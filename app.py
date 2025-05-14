@@ -49,6 +49,15 @@ category_attr_match_dict = {
     "선호 언어": lang_attr_list,
 }
 
+hobby_emoji_match_dict = {
+    "운동":"🏃‍♂️",
+    "독서":"📚",
+    "여행":"✈️",
+    "게임":"🎮",
+    "드라이브":"🚙",
+    "영화":"🍿"
+}
+
 def api_response(status: str, message: str, data: dict = None):
     payload = {"status": status, "message": message}
     if data is not None:
@@ -132,7 +141,7 @@ def dashboard_page():
         {
             "username": u["username"],
             "profile_url": u["profile_url"],
-            "user_choice": u["user_choice"],
+            "user_choice": hobby_emoji_match_dict.get(u["user_choice"]),
         }
         for u in raw_users
     ]
