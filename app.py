@@ -59,6 +59,9 @@ def signin_page():
 def signup_page():
     return render_template("signup.html")
 
+@app.route("/myprofile")
+def profile_page():
+    return render_template("myprofile.html")
 
 @app.route("/dashboard")
 @jwt_required()  # JWT 필수
@@ -153,7 +156,28 @@ def logout():
     unset_jwt_cookies(resp)
     resp.status_code = 200
     return resp
+@app.route('/user')
+def user_profile():
+    # 토큰에서 사용자 아이디(또는 username)를 꺼내서 템플릿에 전달
+    current_user = get_jwt_identity()
+    user = db.users.find_one({"username":current_user})
+    data = request.get_json() or {}
+    username = data.get('username')
 
+    doc = db.users.find_one({'username':username})
+    
+    return render_template("user_info2.html", user=user,another_user = doc)
+@app.route('/my')
+def my_profile():
+    current_user = get_jwt_identity()
+    
+    user = db.users.find({"username":current_user})
+    user_list = user['captured_users']
+    #user_list는 도감에 등록된 user를 받아와야 해서 추후에 가능 일단 막바로 
+    user_list = []
+
+    
+    return render_template("myprofile.html",user=user,user_list=user_list)
 
 if __name__ == "__main__":
     app.run(debug=True)
