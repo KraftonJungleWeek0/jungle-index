@@ -1,123 +1,152 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <title>정글덱스 | 대쉬보드</title>
-</head>
+  </head>
 
-<body class="flex h-screen">
+  <body class="flex h-screen">
     <!-- 사이드바 -->
-    <aside class="w-55 bg-gray-800 text-white flex flex-col justify-between p-5 h-screen">
-        <!-- 상단메뉴 div -->
-        <div>
-            <!-- <div class="text-xl font-semibold mb-4">정글덱스</div> -->
-            <div class="flex items-center space-x-2">
-                <img src="{{ profile_url }}" alt="Profile"
-                    class="w-12 h-12 rounded-full border-2 border-white shadow-md">
-                <div class="font-medium text-white text-sm">{{ username }}</div>
-            </div>
+    <aside
+      class="w-55 bg-gray-800 text-white flex flex-col justify-between p-5 h-screen"
+    >
+      <!-- 상단메뉴 div -->
+      <div>
+        <!-- <div class="text-xl font-semibold mb-4">정글덱스</div> -->
+        <div class="flex items-center space-x-2">
+          <img
+            src="{{ profile_url }}"
+            alt="Profile"
+            class="w-12 h-12 rounded-full border-2 border-white shadow-md"
+          />
+          <div class="font-medium text-white text-sm">{{ username }}</div>
         </div>
+      </div>
 
-        <!-- 하단메뉴 div -->
-        <nav class="space-y-4 mt-auto">
-            <a href="/dashboard" class="block hover:text-gray-300">📊 대시보드</a>
-            <a href="/user_info/{{ username }}" class="block hover:text-gray-300">👤 마이페이지</a>
-            <button id="logoutBtn" class="block hover:text-red-400">🚪 로그아웃</a>
-        </nav>
-
+      <!-- 하단메뉴 div -->
+      <nav class="space-y-4 mt-auto">
+        <a href="/dashboard" class="block hover:text-gray-300">📊 대시보드</a>
+        <a href="/my" class="block hover:text-gray-300">👤 마이페이지</a>
+        <button id="logoutBtn" class="block hover:text-red-400">
+          🚪 로그아웃
+        </button>
+      </nav>
     </aside>
 
     <div class="flex-1 flex flex-col">
-        <!-- 상단 div -->
-        <div class="h-1/3 relative border-b border-gray-200 p-6">
-            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <h1 style="word-break: keep-all;" class="text-4xl font-semibold text-center">{{ randomAttr1 }}는 {{
-                    randomAttr2 }}입니다</h1>
-            </div>
-            <div class="absolute bottom-4 right-6">
-                <!-- 버튼 액션 필요 -->
-                <button class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700">
-                    랜덤
-                </button>
-            </div>
+      <!-- 상단 div -->
+      <div class="h-1/3 relative border-b border-gray-200 p-6">
+        <div
+          class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+        >
+          <h1
+            style="word-break: keep-all"
+            class="text-4xl font-semibold text-center"
+          >
+            야생의 {{random_small_attr}} 속성 정글러가 나타났다!
+          </h1>
         </div>
-
-        <!-- 하단 div -->
-        <div class="flex justify-around items-center flex-1 p-6 bg-gray-50 relative">
-            <!-- 여기에 jinja 반복문 시작 -->
-            <div class="relative flex flex-col items-center text-center cursor-pointer user-card"
-                data-username="{{ username }}">
-                <!-- 프로필 사진 -->
-                <img src="{{ profile_url }}" alt="Profile"
-                    class="sm:w-32 sm:h-32 md:w-48 md:h-48 lg:w-64 lg:h-64 rounded-full border-4 border-gray-300 shadow-md">
-
-                <!-- 뱃지 아이콘 -->
-                <div
-                    class="sm:w-12 sm:h-12 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full border-4 border-gray-300 absolute bottom-9 sm:right-0 md:right-0 lg:right-1 shadow-lg bg-white flex items-center justify-center">
-                    <div class="text-2xl md:text-4xl lg:text-5xl">
-                        😭</div>
-                </div>
-
-                <!-- 닉네임 -->
-                <p class="mt-4 font-medium text-gray-800">{{ username }}</p>
-            </div>
-            <!-- 여기에 jinja 반복문 끝 -->
-
-            <!-- 모달 -->
-            <div id="quizModal"
-                class="hidden absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                <div id="modalContent" class="bg-white p-6 rounded-lg shadow-xl text-center w-80">
-                    <!-- html은 script에서 추가됨 -->
-                </div>
-            </div>
+        <div class="absolute bottom-4 right-6">
+          <!-- 버튼 액션 필요 -->
+          <button
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700"
+          >
+            랜덤
+          </button>
         </div>
+      </div>
 
+      <!-- 하단 div -->
+      <div
+        class="flex justify-around items-center flex-1 p-6 bg-gray-50 relative"
+      >
+        <!-- 여기에 jinja 반복문 시작 -->
+        {% for target_attr_user in target_attr_users %}
+        <div
+          class="relative flex flex-col items-center text-center cursor-pointer user-card"
+          data-username="{{ target_attr_user.username }}"
+        >
+          <!-- 프로필 사진 -->
+          <img
+            src="{{ target_attr_user.profile_url }}"
+            alt="Profile"
+            class="sm:w-32 sm:h-32 md:w-48 md:h-48 lg:w-64 lg:h-64 rounded-full border-4 border-gray-300 shadow-md"
+          />
+
+          <!-- 뱃지 아이콘 -->
+          <div
+            class="sm:w-12 sm:h-12 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full border-4 border-gray-300 absolute bottom-9 sm:right-0 md:right-0 lg:right-1 shadow-lg bg-white flex items-center justify-center"
+          >
+            <div class="text-2xl md:text-4xl lg:text-5xl">
+              {{ target_attr_user.user_choice }}
+            </div>
+          </div>
+
+          <!-- 닉네임 -->
+          <p class="mt-4 font-medium text-gray-800">
+            {{ target_attr_user.username }}
+          </p>
+        </div>
+        {% endfor %}
+        <!-- 여기에 jinja 반복문 끝 -->
+
+        <!-- 모달 -->
+        <div
+          id="quizModal"
+          class="hidden absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+        >
+          <div
+            id="modalContent"
+            class="bg-white p-6 rounded-lg shadow-xl text-center w-80"
+          >
+            <!-- html은 script에서 추가됨 -->
+          </div>
+        </div>
+      </div>
     </div>
+  </body>
 
-</body>
-
-<script>
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-        try {
-            const res = await fetch('/api/auth/logout', {
-                method: 'POST',
-                credentials: 'include'  // 쿠키 전송
-            });
-            if (res.ok) {
-                // 로그아웃 성공 시 홈으로 이동
-                window.location.href = '/';
-            } else {
-                console.error('로그아웃 실패:', res.status, await res.text());
-            }
-        } catch (err) {
-            console.error('네트워크 에러:', err);
+  <script>
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      try {
+        const res = await fetch("/api/auth/logout", {
+          method: "POST",
+          credentials: "include", // 쿠키 전송
+        });
+        if (res.ok) {
+          // 로그아웃 성공 시 홈으로 이동
+          window.location.href = "/";
+        } else {
+          console.error("로그아웃 실패:", res.status, await res.text());
         }
+      } catch (err) {
+        console.error("네트워크 에러:", err);
+      }
     });
 
     document.addEventListener("DOMContentLoaded", function () {
-        const userCards = document.querySelectorAll('.user-card');
-        const modal = document.getElementById('quizModal');
-        const modalContent = document.getElementById('modalContent');
+      const userCards = document.querySelectorAll(".user-card");
+      const modal = document.getElementById("quizModal");
+      const modalContent = document.getElementById("modalContent");
 
-        userCards.forEach(card => {
-            card.addEventListener('click', () => {
-                const username = card.dataset.username;
-                const profileImage = card.querySelector('img').src;
+      userCards.forEach((card) => {
+        card.addEventListener("click", () => {
+          const username = card.dataset.username;
+          const profileImage = card.querySelector("img").src;
 
-                // 유저 기본 정보 표시
-                modalContent.innerHTML = `
+          // 유저 기본 정보 표시
+          modalContent.innerHTML = `
                     <img src="${profileImage}" alt="Profile" class="w-24 h-24 mx-auto rounded-full mb-4">
                     <p class="text-lg font-semibold">${username}</p>
                     <p class="text-sm text-gray-600 mt-2">이 유저를 맞혀보세요!</p>
                 `;
-                modal.classList.remove('hidden');
+          modal.classList.remove("hidden");
 
-                // OX 퀴즈
-                setTimeout(() => {
-                    modalContent.innerHTML = `
+          // OX 퀴즈
+          setTimeout(() => {
+            modalContent.innerHTML = `
                         <p class="text-2xl font-semibold mb-6">도감 등록 찬스!</p>
                         <p class="text-lg font-semibold mb-4">이 유저는 헬스를 좋아한다?</p>
                         <div class="flex justify-center gap-4">
@@ -126,20 +155,28 @@
                         </div>
                     `;
 
-                    const correctAnswer = true; // 임시 값, 실제 퀴즈 생성 과정 필요
+            const correctAnswer = true; // 임시 값, 실제 퀴즈 생성 과정 필요
 
-                    const btnYes = document.getElementById('btn-yes');
-                    const btnNo = document.getElementById('btn-no');
+            const btnYes = document.getElementById("btn-yes");
+            const btnNo = document.getElementById("btn-no");
 
-                    btnYes.onclick = function () { handleAnswer(true); };
-                    btnNo.onclick = function () { handleAnswer(false); };
+            btnYes.onclick = function () {
+              handleAnswer(true);
+            };
+            btnNo.onclick = function () {
+              handleAnswer(false);
+            };
 
-                    function handleAnswer(answer) {
-                        const isCorrect = answer === correctAnswer;
-                        const messageResult = isCorrect ? "정답입니다! 👏" : "오답입니다! 😢";
-                        const messageTip = isCorrect ? "도감 등록 완료!" : "hint : 유저 프로필을 자세히 보세요";
-                        // 퀴즈가 정답일 때(isCorrect가 true일 때) 해당유저 정보 도감db에 저장되는 과정 필요
-                        modalContent.innerHTML = `
+            function handleAnswer(answer) {
+              const isCorrect = answer === correctAnswer;
+              const messageResult = isCorrect
+                ? "정답입니다! 👏"
+                : "오답입니다! 😢";
+              const messageTip = isCorrect
+                ? "도감 등록 완료!"
+                : "hint : 유저 프로필을 자세히 보세요";
+              // 퀴즈가 정답일 때(isCorrect가 true일 때) 해당유저 정보 도감db에 저장되는 과정 필요
+              modalContent.innerHTML = `
                         <p class="text-xl font-bold mb-2">${messageResult}</p>
                         <img src="${profileImage}" alt="Profile" class="w-20 h-20 mx-auto rounded-full mb-4">
                         <p class="text-sm text-gray-600 mb-4">${username}</p>
@@ -149,15 +186,15 @@
                         </button>
                     `;
 
-                        document.getElementById('closeBtn').addEventListener('click', () => {
-                            modal.classList.add('hidden');
-                        });
-                    }
-                }, 2000);
-
-            });
+              document
+                .getElementById("closeBtn")
+                .addEventListener("click", () => {
+                  modal.classList.add("hidden");
+                });
+            }
+          }, 2000);
         });
+      });
     });
-</script>
-
+  </script>
 </html>
