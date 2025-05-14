@@ -161,10 +161,10 @@ def user_profile():
         "profile_url": "",
     }
     data = request.get_json() or {}
-
     username = data.get('username')
 
     doc = db.users.find_one({'username':username})
+    
     print(doc)
 
     return render_template("user_info2.html", user=user,another_user = doc)
