@@ -29,7 +29,7 @@ app = Flask(
 # 대카테고리 리스트
 category_list = ["취미", "MBTI", "선호 언어"]
 # 소카테고리 리스트
-hobby_attr_list = ["운동", "독서", "여행", "게임", "드라이브", "영화"]
+hobby_attr_list = ["테니스", "독서", "헬스", "게임", "드라이브", "요리", "음악", "미술", "무술", "춤", "축구", "요가", "러닝", "코딩", "클라이밍"]
 mbti_attr_list = ["E", "I", "S", "N", "T", "F", "J", "P"]
 lang_attr_list = [
     "Python",
@@ -48,7 +48,6 @@ category_attr_match_dict = {
     "MBTI": mbti_attr_list,
     "선호 언어": lang_attr_list,
 }
-
 
 def api_response(status: str, message: str, data: dict = None):
     payload = {"status": status, "message": message}
