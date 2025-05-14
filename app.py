@@ -5,7 +5,15 @@ from datetime import timedelta
 
 import bcrypt
 from dotenv import load_dotenv
-from flask import Flask, jsonify, make_response, render_template, request
+from flask import (
+    Flask,
+    jsonify,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask_jwt_extended import (
     JWTManager,
     create_access_token,
@@ -82,9 +90,33 @@ client = MongoClient(mongo_uri)
 db = client.jungleindex
 
 
+# 토큰이 없거나 헤더에 Authorization 정보가 없을 때
+@jwt.unauthorized_loader
+def handle_missing_token(error_str):
+    return redirect(url_for("unauthorized_page"))
+
+
+# Access Token 이 만료되었을 때
+@jwt.expired_token_loader
+def handle_expired_token(jwt_header, jwt_payload):
+    return redirect(url_for("unauthorized_page"))
+
+
+# 유효하지 않은(위조된) 토큰일 때
+@jwt.invalid_token_loader
+def handle_invalid_token(error_str):
+    return redirect(url_for("unauthorized_page"))
+
+
 @app.route("/")
 def hello():
     return render_template("landing.html")
+
+
+@app.route("/unauthorized")
+def unauthorized_page():
+    # 401 status code 로 응답
+    return render_template("unauthorized.html"), 401
 
 
 @app.route("/signin")
@@ -276,9 +308,6 @@ def generate_quiz(username):
         ),
         200,
     )
-
-
-# app.py에 맨 아래쪽(혹은 quiz 엔드포인트 아래)에 추가
 
 
 @app.route("/api/capture/<target_username>", methods=["POST"])

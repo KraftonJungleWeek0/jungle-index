@@ -88,7 +88,7 @@
         {% endfor %} {% else %}
         <div class="col-span-full flex items-center justify-center">
           <lottie-player
-            src="{{ url_for('static', filename='searching.json') }}"
+            src="{{ url_for('static', filename='search_no_result.json') }}"
             background="transparent"
             speed="1"
             style="width: 300px; height: 300px"
@@ -220,78 +220,5 @@
         }
       }
     </script>
-
-    <!-- 
-    <script>
-      // 로그아웃
-      document
-        .getElementById("logoutBtn")
-        .addEventListener("click", async () => {
-          try {
-            const res = await fetch("/api/auth/logout", {
-              method: "POST",
-              credentials: "include",
-            });
-            if (res.ok) window.location.href = "/";
-            else console.error("로그아웃 실패", res.status, await res.text());
-          } catch (err) {
-            console.error("네트워크 에러", err);
-          }
-        });
-      document.querySelectorAll(".user-card").forEach((card) => {
-        card.addEventListener("click", async () => {
-          const username = card.dataset.username;
-          const modal = document.getElementById("quizModal");
-          const modalContent = document.getElementById("modalContent");
-
-          // 1) 서버로부터 문제와 정답 받아오기
-          const res = await fetch(`/api/quiz/${username}`, {
-            method: "GET",
-            credentials: "include",
-          });
-          if (!res.ok) return console.error("퀴즈 로드 실패");
-          const { quiz_string, quiz_answer } = (await res.json()).data;
-
-          // 2) 잠깐 인트로 보여주기
-          modalContent.innerHTML = `<p class="mb-4">🕹️ 앗! 야생의 정글몬을 발견했다!</p>`;
-          modal.classList.remove("hidden");
-
-          // 3) 2초 뒤에 문제, 버튼 노출
-          setTimeout(() => {
-            modalContent.innerHTML = `
-        <p class="text-lg mb-6">${quiz_string}</p>
-        <div class="flex justify-center gap-4">
-          <button id="btn-yes" class="px-4 py-2 bg-green-500 text-white rounded">O</button>
-          <button id="btn-no"  class="px-4 py-2 bg-red-500   text-white rounded">X</button>
-        </div>
-      `;
-            // 4) 클릭 시 비교
-            document.getElementById("btn-yes").onclick = () =>
-              showResult(true, quiz_answer, username, card);
-            document.getElementById("btn-no").onclick = () =>
-              showResult(false, quiz_answer, username, card);
-          }, 1500);
-        });
-      });
-
-      // 결과 보여주는 함수
-      function showResult(userAns, correctAns, username, card) {
-        const isRight = userAns === correctAns;
-        modalContent.innerHTML = `
-    <p class="text-xl font-bold mb-2">${
-      isRight ? "정답입니다! 🎉" : "틀렸습니다… 😢"
-    }</p>
-    <p class="text-sm mb-4">${
-      isRight ? "도감에 등록됐어요!" : "힌트: 프로필을 잘 살펴보세요."
-    }</p>
-    <button id="closeBtn" class="px-4 py-2 bg-blue-600 text-white rounded">확인</button>
-  `;
-        document.getElementById("closeBtn").onclick = () =>
-          document.getElementById("quizModal").classList.add("hidden");
-
-        // (선택) 정답일 때 도감 등록 로직 호출
-        if (isRight) registerToMyPage(username);
-      }
-    </script> -->
   </body>
 </html>
