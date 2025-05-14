@@ -1,6 +1,5 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, request
 from dotenv import load_dotenv
-from openai import OpenAI
 from pymongo import MongoClient
 import os
 from datetime import timedelta
@@ -20,7 +19,7 @@ from flask_jwt_extended import (
 
 load_dotenv()  # .env 파일 열기
 
-app = Flask(__name__,template_folder='jungle-index/templates')
+app = Flask(__name__, template_folder="jungledex/templates")
     
 def api_response(status: str, message: str, data: dict = None):
     payload = {"status": status, "message": message}
@@ -46,23 +45,44 @@ db = client.jungleindex
 
 @app.route('/')
 def hello():
-    return 'Hello, World!'
+    return render_template("landing.html")
 
-@app.route("/auth/signup", methods=["POST"])
-def signup():
+@app.route("/signin")
+def signin_page():
+    return render_template("signin.html")
+
+@app.route("/signup")
+def signup_page():
+    return render_template("signup.html")
+
+@app.route("/dashboard")
+@jwt_required()  # JWT 필수
+def dashboard_page():
+    # 토큰에서 사용자 아이디(또는 username)를 꺼내서 템플릿에 전달
+    current_user = get_jwt_identity()
+    return render_template("dashboard.html", username=current_user)
+
+@app.route("/api/auth/check", methods=["POST"])
+def check_username():
     data = request.get_json() or {}
     username = data.get('username')
 
     if db.users.find_one({'username': username}):
         return api_response("error", "이미 가입된 사용자입니다."), 409
+    else:
+        return api_response("success", "사용자명 사용 가능")
 
+
+@app.route("/api/auth/signup", methods=["POST"])
+def signup_api():
+    data = request.get_json() or {}
+    username = data.get('username')
     raw_password = data.get('password')
-    simple_description = data.get('simple_description')
-    
+    about = data.get('about')
     hobby_list = data.get('hobby_list', [])
     mbti = data.get('mbti')
     preferred_language = data.get('preferred_language')
-    long_description = data.get('long_description')
+    introduction = data.get('introduction')
 
     user_choice = data.get('user_choice')
 
@@ -77,11 +97,11 @@ def signup():
     db.users.insert_one({
         'username': username,
         'password': hashed_password,
-        'simple_description': simple_description,
+        'about': about,
         'hobby_list': hobby_list,
         'mbti': mbti,
         'preferred_language': preferred_language,
-        'long_description': long_description,
+        'introduction': introduction,
         'profile_url': image_url
     })
 
@@ -92,8 +112,8 @@ def signup():
     set_access_cookies(resp, access_token, max_age=900)
     return resp
 
-@app.route("/auth/signin", methods=["POST"])
-def signin():
+@app.route("/api/auth/signin", methods=["POST"])
+def signin_api():
     data = request.get_json() or {}
     username = data.get('username')
     raw_password = data.get('password')
@@ -114,19 +134,11 @@ def signin():
 
     return api_response("error", "아이디 또는 비밀번호가 올바르지 않습니다."), 401
 
-@app.route("/auth/logout", methods=["POST"])
+@app.route("/api/auth/logout", methods=["POST"])
 @jwt_required()
 def logout():
     resp = api_response("success", "로그아웃 되었습니다.")
     unset_jwt_cookies(resp)
-    resp.status_code = 200
-    return resp
-
-@app.route("/home", methods=["GET"])
-@jwt_required()
-def home():
-    current_user = get_jwt_identity()
-    resp = api_response("success", "홈 정보 조회에 성공했습니다.", {"username": current_user})
     resp.status_code = 200
     return resp
 

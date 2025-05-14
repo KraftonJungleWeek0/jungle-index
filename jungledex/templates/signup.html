@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>정글덱스 | 정보 입력</title>
+</head>
+
+<body class="flex bg-gray-100 flex items-center justify-center min-h-screen">
+
+  <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
+
+    <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+      <h2 class="mt-4 text-center text-2xl/9 font-bold tracking-tight text-gray-900">정글덱스 회원가입</h2>
+    </div>
+
+    <!-- 사용자명 div -->
+    <div id="nameSection" style="display: block" class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm mb-6">
+      <form class="">
+        <!-- 사용자명 -->
+        <div class="pb-6">
+          <label class="block text-sm font-medium text-gray-900">사용자명</label>
+          <input type="text" name="username" id="username" required
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-400 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:outline-none focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+        </div>
+
+        <!-- 중복확인 버튼 -->
+        <div class="flex items-center justify-between">
+          <button type="button" id="nameCheckBtn" style="display: block"
+            class="w-full rounded-md bg-indigo-600 px-3 py-1.5 text-base font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus:outline-none focus-visible:outline-indigo-600">중복
+            확인
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- 비밀번호 div -->
+    <div id="pwSection" style="display: none" class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm mb-6">
+      <form class="space-y-6">
+        <!-- PW -->
+        <div id="pw">
+          <label class="block text-sm/6 font-medium text-gray-900">비밀번호</label>
+          <input type="password" name="password" id="password" required
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-400 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:outline-none focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+
+        </div>
+
+        <!-- PW 확인 -->
+        <div id="pwcheck">
+          <label class="block text-sm/6 font-medium text-gray-900">비밀번호 확인</label>
+          <input type="password" name="passwordConfirm" id="passwordConfirm" required
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-400 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:outline-none focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+
+        </div>
+
+        <!-- 다음 버튼 -->
+        <div class="flex items-center justify-between">
+          <button type="button" id="pwCheckBtn"
+            class="w-full rounded-md bg-indigo-600 px-3 py-1.5 text-base font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus:outline-none focus-visible:outline-indigo-600">다음으로
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- 정보입력 div -->
+    <div id="infoSection" style="display: none" class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm mb-6">
+      <form action="/dashboard" method="POST" class="space-y-6">
+        <!-- 한마디 -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700">하고싶은 한마디</label>
+          <textarea name="about" id="about" required
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-400 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+            maxlength="50" placeholder="나를 소개할 한마디..."></textarea>
+        </div>
+
+        <!-- 취미 -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700">취미</label>
+          <div class="flex flex-wrap gap-2">
+            <label class="flex items-center space-x-2">
+              <input type="checkbox" class="form-checkbox text-indigo-600" name="hobby" value="운동">
+              <span>운동</span>
+            </label>
+            <label class="flex items-center space-x-2">
+              <input type="checkbox" class="form-checkbox text-indigo-600" name="hobby" value="독서">
+              <span>독서</span>
+            </label>
+            <label class="flex items-center space-x-2">
+              <input type="checkbox" class="form-checkbox text-indigo-600" name="hobby" value="음악 감상">
+              <span>음악감상</span>
+            </label>
+            <label class="flex items-center space-x-2">
+              <input type="checkbox" class="form-checkbox text-indigo-600" name="hobby" value="여행">
+              <span>여행</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- MBTI -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700">MBTI</label>
+          <div class="grid grid-cols-4 gap-4">
+            <!-- E/I -->
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">외향/내향</label>
+              <div class="flex items-center space-x-4">
+                <label class="flex items-center space-x-1">
+                  <input type="radio" name="ei" value="E" class="form-radio">
+                  <span>E</span>
+                </label>
+                <label class="flex items-center space-x-1">
+                  <input type="radio" name="ei" value="I" class="form-radio">
+                  <span>I</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- S/N -->
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">감각/직관</label>
+              <div class="flex items-center space-x-4">
+                <label class="flex items-center space-x-1">
+                  <input type="radio" name="sn" value="S" class="form-radio text-indigo-600">
+                  <span>S</span>
+                </label>
+                <label class="flex items-center space-x-1">
+                  <input type="radio" name="sn" value="N" class="form-radio text-indigo-600">
+                  <span>N</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- T/F -->
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">사고/감정</label>
+              <div class="flex items-center space-x-4">
+                <label class="flex items-center space-x-1">
+                  <input type="radio" name="tf" value="T" class="form-radio text-indigo-600">
+                  <span>T</span>
+                </label>
+                <label class="flex items-center space-x-1">
+                  <input type="radio" name="tf" value="F" class="form-radio text-indigo-600">
+                  <span>F</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- J/P -->
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">판단/인식</label>
+              <div class="flex items-center space-x-4">
+                <label class="flex items-center space-x-1">
+                  <input type="radio" name="jp" value="J" class="form-radio text-indigo-600">
+                  <span>J</span>
+                </label>
+                <label class="flex items-center space-x-1">
+                  <input type="radio" name="jp" value="P" class="form-radio text-indigo-600">
+                  <span>P</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 선호 언어 -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700">선호 언어</label>
+          <select id="preferred_language" name="languages"
+            class="mt-1 block rounded-md border-gray-300 shadow-sm focus:outline-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            <option value="Python">Python</option>
+            <option value="JavaScript">JavaScript</option>
+            <option value="Java">Java</option>
+            <option value="C++">C++</option>
+            <option value="C#">C#</option>
+            <option value="Go">Go</option>
+            <option value="Rust">Rust</option>
+            <option value="TypeScript">TypeScript</option>
+            <option value="Rust">Rust</option>
+            <option value="Swift">Swift</option>
+            <option value="Kotlin">Kotlin</option>
+          </select>
+        </div>
+
+        <!-- 자기소개 -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700">자기소개</label>
+          <textarea name="about" id="about" required
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-400 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+            placeholder="추가로 하고 싶은 말"></textarea>
+        </div>
+
+        <!-- 완료 버튼 -->
+        <button type="submit" id="doneBtn"
+          class="w-full rounded-md bg-indigo-600 px-3 py-1.5 text-base font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus:outline-none focus-visible:outline-indigo-600">
+          입력완료
+        </button>
+
+      </form>
+    </div>
+
+    <!-- 로그인으로 돌아가기 -->
+    <div class="flex flex-col items-center">
+      <a href="/signin" class="text-gray-900 hover:text-indigo-500">로그인 화면으로 돌아가기</a>
+    </div>
+
+  </div>
+
+</body>
+
+</html>
+
+<script>
+  document.getElementById("nameCheckBtn").addEventListener('click', nameCheck);
+  function nameCheck() {
+    const username = document.getElementById("username").value;
+    if (username === "") return;
+
+    // 이름 중복체크 파트
+
+    document.getElementById("nameCheckBtn").style.display = 'none';
+    document.getElementById("pwSection").style.display = 'block';
+  }
+
+  document.getElementById("pwCheckBtn").addEventListener('click', pwCheck);
+  function pwCheck() {
+    const password = document.getElementById("password").value;
+    const passwordCheck = document.getElementById("passwordConfirm").value;
+
+    console.log(password, passwordCheck);
+
+
+    if (password === "" || passwordCheck === "") return;
+
+    if (password !== passwordCheck) {
+      alert("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    document.getElementById("nameSection").style.display = 'none';
+    document.getElementById("pwSection").style.display = 'none';
+    document.getElementById("infoSection").style.display = 'block';
+  }
+
+  document.getElementById("doneBtn").addEventListener('click', selectionToList);
+  function selectionToList() {
+
+  }
+</script>
