@@ -1,4 +1,5 @@
 import os
+import random
 from datetime import timedelta
 
 import bcrypt
@@ -19,6 +20,8 @@ from jungledex.oai.profile_image import generate_user_profile_image
 load_dotenv()  # .env 파일 열기
 
 app = Flask(__name__, template_folder="jungledex/templates")
+
+small_attr_list = ["운동", "독서", "여행", "게임", "드라이브", "영화"]
 
 
 def api_response(status: str, message: str, data: dict = None):
@@ -59,16 +62,51 @@ def signin_page():
 def signup_page():
     return render_template("signup.html")
 
+
 @app.route("/myprofile")
 def profile_page():
     return render_template("myprofile.html")
+
 
 @app.route("/dashboard")
 @jwt_required()  # JWT 필수
 def dashboard_page():
     # 토큰에서 사용자 아이디(또는 username)를 꺼내서 템플릿에 전달
     current_user = get_jwt_identity()
-    return render_template("dashboard.html", username=current_user)
+
+    random_big_attr = "취미"
+    random_small_attr = random.choice(small_attr_list)
+
+    # 1) 원본 커서 조회
+    # raw_users 단계에서 current_user를 제외
+    raw_users = db.users.find(
+        {
+            "user_choice": random_small_attr,
+            "username": {"$ne": current_user},  # current_user가 아닌 문서만 조회
+        }
+    )
+
+    # 2) 필요한 필드만 뽑아서 새 리스트 생성
+    target_attr_users = [
+        {
+            "username": u["username"],
+            "profile_url": u["profile_url"],
+            "user_choice": u["user_choice"],
+        }
+        for u in raw_users
+    ]
+
+    user = db.users.find_one({"username": current_user})
+
+    return render_template(
+        "dashboard.html",
+        username=current_user,
+        profile_url=user["profile_url"],
+        user_choice=user["user_choice"],
+        random_big_attr=random_big_attr,
+        random_small_attr=random_small_attr,
+        target_attr_users=target_attr_users,
+    )
 
 
 @app.route("/api/auth/check", methods=["POST"])
@@ -147,6 +185,7 @@ def signin_api():
         return resp
 
     return api_response("error", "아이디 또는 비밀번호가 올바르지 않습니다."), 401
+
 
 @app.route("/api/auth/logout", methods=["POST"])
 @jwt_required()
