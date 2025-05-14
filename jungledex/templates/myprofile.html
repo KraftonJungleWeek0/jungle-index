@@ -7,37 +7,50 @@
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
 
-  <body class="flex min-h-screen">
+  <body class="flex min-h-screen bg-gray-100">
     <aside
-      class="w-55 bg-gray-800 text-white flex flex-col justify-between p-5 h-screen"
+      class="w-56 bg-gradient-to-r from-green-800 to-green-600 text-white flex flex-col justify-between p-5 h-screen"
     >
-      <!-- 상단메뉴 div -->
+      <!-- 상단메뉴 -->
       <div>
-        <!-- <div class="text-xl font-semibold mb-4">정글덱스</div> -->
         <div class="flex items-center space-x-2">
           <img
             src="{{ user['profile_url'] }}"
             alt="Profile"
             class="w-12 h-12 rounded-full border-2 border-white shadow-md"
           />
-          <div class="text-sm mt-1">{{ user['username'] }}</div>
+          <div class="text-sm font-semibold mt-1">{{ user['username'] }}</div>
         </div>
       </div>
 
-      <nav class="space-y-4 mt-auto">
-        <a href="/dashboard" class="block hover:text-gray-300">📊 대시보드</a>
-        <a href="/my" class="block hover:text-gray-300">👤 마이페이지</a>
-        <button id="logoutBtn" class="block hover:text-red-400">
-          🚪 로그아웃
+      <nav class="space-y-4">
+        <a
+          href="/dashboard"
+          class="flex items-center px-3 py-2 rounded-lg hover:bg-gray-700 transition"
+          ><span class="ml-2">대시보드</span></a
+        >
+        <a
+          href="/my"
+          class="flex items-center px-3 py-2 rounded-lg hover:bg-gray-700 transition"
+          ><span class="ml-2">마이페이지</span></a
+        >
+        <button
+          id="logoutBtn"
+          class="flex items-center w-full px-3 py-2 rounded-lg hover:bg-red-600 transition text-left"
+        >
+          <span class="ml-2">로그아웃</span>
         </button>
       </nav>
     </aside>
 
-    <main class="flex flex-1">
+    <main class="flex flex-1 flex-col p-8 space-y-8">
+      <!-- 프로필 요약 섹션 -->
       <section
-        class="w-2/5 bg-green-100 flex flex-col items-center justify-center border-r-2 border-blue-400"
+        class="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center"
       >
-        <div class="w-48 h-48 rounded-full bg-cyan-400 overflow-hidden mb-6">
+        <div
+          class="w-48 h-48 rounded-full overflow-hidden mb-6 border-4 border-gray-200"
+        >
           {% if user['profile_url'] %}
           <img
             src="{{ user['profile_url'] }}"
@@ -46,37 +59,44 @@
           />
           {% endif %}
         </div>
-        <h2 class="text-xl font-semibold">{{ user['username'] }}</h2>
-        <p class="text-sm mt-2 text-center px-4">{{ user['about_me'] }}</p>
+        <h2 class="text-2xl font-bold mb-2">{{ user['username'] }}</h2>
+        <p class="text-gray-600 text-sm px-4">{{ user['about_me'] }}</p>
       </section>
 
-      <section class="w-3/5 bg-gray-200 p-10 text-sm">
-        <div class="grid grid-cols-3 gap-4">
-          <div class="font-semibold">이름</div>
-          <div>{{ user['real_name'] }}</div>
-          <div></div>
+      <!-- 상세 정보 섹션 -->
+      <section class="bg-white rounded-xl shadow-lg p-8">
+        <h3 class="text-xl font-semibold mb-6 border-b border-gray-200 pb-2">
+          프로필 정보
+        </h3>
+        <div class="grid grid-cols-3 gap-y-4 gap-x-8 text-sm">
+          <div class="font-medium text-gray-700">이름</div>
+          <div class="col-span-2 text-gray-800">{{ user['real_name'] }}</div>
 
-          <div class="font-semibold">좋아하는 취미</div>
-          <div>{{ ", ".join(user['hobbies']) }}</div>
-          <div></div>
+          <div class="font-medium text-gray-700">좋아하는 취미</div>
+          <div class="col-span-2 text-gray-800">
+            {{ ", ".join(user['hobbies']) }}
+          </div>
 
-          <div class="font-semibold">MBTI</div>
-          <div>{{ user['mbti'] }}</div>
-          <div></div>
+          <div class="font-medium text-gray-700">MBTI</div>
+          <div class="col-span-2 text-gray-800">{{ user['mbti'] }}</div>
 
-          <div class="font-semibold">선호 언어</div>
-          <div>{{ ", ".join(user['languages']) }}</div>
-          <div></div>
+          <div class="font-medium text-gray-700">선호 언어</div>
+          <div class="col-span-2 text-gray-800">
+            {{ ", ".join(user['languages']) }}
+          </div>
         </div>
-        <hr class="mt-10 border-black" />
+      </section>
 
-        <h3 class="text-lg font-semibold mt-10 mb-4">도감</h3>
-
-        <div class="bg-white p-6 rounded-lg grid grid-cols-4 gap-6">
+      <!-- 도감 섹션 -->
+      <section class="bg-white rounded-xl shadow-lg p-8">
+        <h3 class="text-xl font-semibold mb-6 border-b border-gray-200 pb-2">
+          도감
+        </h3>
+        <div class="grid grid-cols-4 gap-6">
           {% for u in user_list %}
           <div class="flex flex-col items-center">
             <div
-              class="w-16 h-16 rounded-full bg-gray-300 overflow-hidden border-2 {% if u['is_selected'] %}border-blue-500{% else %}border-transparent{% endif %}"
+              class="w-16 h-16 rounded-full overflow-hidden border-2 {% if u['is_selected'] %}border-blue-500{% else %}border-transparent{% endif %}"
             >
               {% if u['profile_url'] %}
               <img
@@ -86,36 +106,36 @@
               />
               {% endif %}
             </div>
-            <div class="text-xs mt-2 text-center">
-              <a
-                href="/user/{{ u['username'] }}"
-                class="block px-4 py-1 rounded-xl bg-white shadow hover:bg-blue-100 hover:text-blue-600 hover:underline transition duration-200"
-              >
-                {{ u['username'] }}
-              </a>
-            </div>
+            <a
+              href="/user/{{ u['username'] }}"
+              class="mt-2 text-xs font-medium px-3 py-1 bg-gray-50 rounded-xl shadow hover:bg-blue-50 hover:text-blue-600 transition duration-200"
+            >
+              {{ u['username'] }}
+            </a>
           </div>
           {% endfor %}
         </div>
       </section>
     </main>
-  </body>
-  <script>
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
-      try {
-        const res = await fetch("/api/auth/logout", {
-          method: "POST",
-          credentials: "include", // 쿠키 전송
+
+    <script>
+      document
+        .getElementById("logoutBtn")
+        .addEventListener("click", async () => {
+          try {
+            const res = await fetch("/api/auth/logout", {
+              method: "POST",
+              credentials: "include",
+            });
+            if (res.ok) {
+              window.location.href = "/";
+            } else {
+              console.error("로그아웃 실패:", res.status, await res.text());
+            }
+          } catch (err) {
+            console.error("네트워크 에러:", err);
+          }
         });
-        if (res.ok) {
-          // 로그아웃 성공 시 홈으로 이동
-          window.location.href = "/";
-        } else {
-          console.error("로그아웃 실패:", res.status, await res.text());
-        }
-      } catch (err) {
-        console.error("네트워크 에러:", err);
-      }
-    });
-  </script>
+    </script>
+  </body>
 </html>

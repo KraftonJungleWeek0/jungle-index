@@ -19,7 +19,12 @@ from jungledex.oai.profile_image import generate_user_profile_image
 
 load_dotenv()  # .env 파일 열기
 
-app = Flask(__name__, template_folder="jungledex/templates")
+app = Flask(
+    __name__,
+    template_folder="jungledex/templates",
+    static_folder="jungledex/static",
+    static_url_path="/static",
+)
 
 small_attr_list = ["운동", "독서", "여행", "게임", "드라이브", "영화"]
 
@@ -202,7 +207,6 @@ def user_profile(username):
     # 토큰에서 사용자 아이디(또는 username)를 꺼내서 템플릿에 전달
     current_user = get_jwt_identity()
     user = db.users.find_one({"username": current_user})
-    print(username)
     doc = db.users.find_one({"username": username})
 
     return render_template("user.html", user=user, another_user=doc)
