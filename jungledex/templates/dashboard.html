@@ -50,7 +50,7 @@
           <span class="text-green-600"
             >{{ random_big_attr }} : {{ random_small_attr }}</span
           >
-          속성 정글러가 나타났다!
+          속성 정글몬이 나타났다!
         </h1>
         <button
           onclick="location.reload(true)"
@@ -126,6 +126,7 @@
             console.error("네트워크 에러", err);
           }
         });
+
       async function loadQuiz(username) {
         const res = await fetch(`/api/quiz/${username}`, {
           method: "GET",
@@ -143,11 +144,9 @@
       }
 
       function showModal(contentHTML) {
-        const modal = document.getElementById("quizModal");
         document.getElementById("modalContent").innerHTML = contentHTML;
-        modal.classList.remove("hidden");
+        document.getElementById("quizModal").classList.remove("hidden");
       }
-
       function hideModal() {
         document.getElementById("quizModal").classList.add("hidden");
       }
@@ -155,68 +154,111 @@
       document.querySelectorAll(".user-card").forEach((card) => {
         card.addEventListener("click", async () => {
           const target = card.dataset.username;
+          const profileImg = card.querySelector("img").src;
 
-          // 1) 로딩 인터루드
-          showModal(`<p class="mb-4">🕹️ 야생의 ${target}을 마주쳤다!</p>`);
+          // 1) 로딩 인터루드 (프로필 포함)
+          showModal(`
+            <div class="flex flex-col items-center">
+              <img src="${profileImg}" class="w-20 h-20 rounded-full mb-2">
+              <p class="mb-4">🕹️ 야생의 ${target}을 마주쳤다!</p>
+            </div>
+          `);
 
           // 2) 문제/정답 가져오기
           let quiz;
           try {
             quiz = await loadQuiz(target);
           } catch (e) {
-            return showModal(`<p class="text-red-500">문제 로드 실패</p>`);
+            return showModal(`
+              <div class="flex flex-col items-center">
+                <img src="${profileImg}" class="w-20 h-20 rounded-full mb-2">
+                <p class="text-red-500">정글몬을 만나러 갈 수 없어요 😭</p>
+              </div>
+            `);
           }
 
-          // 3) 2초 뒤에 O/X 버튼 노출
+          // 3) 2초 뒤에 O/X 버튼 노출 (프로필 + 문제)
           setTimeout(() => {
             showModal(`
-          <p class="text-lg mb-6">${quiz.quiz_string}</p>
-          <div class="flex justify-center gap-4">
-            <button id="btn-yes" class="px-4 py-2 bg-green-500 text-white rounded">O</button>
-            <button id="btn-no"  class="px-4 py-2 bg-red-500   text-white rounded">X</button>
-          </div>
-        `);
-
+              <div class="flex flex-col items-center">
+                <img src="${profileImg}" class="w-20 h-20 rounded-full mb-2">
+                <p class="text-lg mb-6">${quiz.quiz_string}</p>
+                <div class="flex justify-center gap-4">
+                  <button id="btn-yes" class="px-4 py-2 bg-green-500 text-white rounded">O</button>
+                  <button id="btn-no"  class="px-4 py-2 bg-red-500 text-white rounded">X</button>
+                </div>
+              </div>
+            `);
             document.getElementById("btn-yes").onclick = () =>
-              handleAnswer(true, quiz.quiz_answer, target);
+              handleAnswer(true, quiz.quiz_answer, target, profileImg);
             document.getElementById("btn-no").onclick = () =>
-              handleAnswer(false, quiz.quiz_answer, target);
+              handleAnswer(false, quiz.quiz_answer, target, profileImg);
           }, 2000);
         });
       });
 
-      async function handleAnswer(userAns, correctAns, target) {
-        // 정답 여부
+      // 프로필 이미지까지 함께 받도록 시그니처 변경
+      async function handleAnswer(userAns, correctAns, target, profileImg) {
         const isRight = userAns === correctAns;
 
         if (isRight) {
-          // 맞추면 도감 등록 API 호출
-          showModal(`<p class="text-xl font-bold mb-4">정답입니다! 🎉</p>
-                 <p class="mb-4">도감에 등록 중...</p>`);
+          // 정답 축하 + 애니메이션 + 프로필
+          showModal(`
+            <div class="flex flex-col items-center">
+              <img src="${profileImg}" class="w-20 h-20 rounded-full mb-2">
+              <lottie-player
+                src="{{ url_for('static', filename='capture.json') }}"
+                background="transparent"
+                speed="1"
+                style="width:120px; height:120px;"
+                loop autoplay>
+              </lottie-player>
+              <p class="text-xl font-bold mt-4">정답입니다! 🎉</p>
+              <p class="mb-2">도감에 등록 중...</p>
+            </div>
+          `);
           try {
             await registerCapture(target);
-            showModal(`
-          <p class="text-xl font-bold mb-2">도감에 등록 완료! ✅</p>
-          <button id="closeBtn" class="px-4 py-2 bg-blue-600 text-white rounded">확인</button>
-        `);
+            // 등록 완료 메시지
+            setTimeout(() => {
+              showModal(`
+                <div class="flex flex-col items-center">
+                  <img src="${profileImg}" class="w-20 h-20 rounded-full mb-2">
+                  <lottie-player
+                    src="{{ url_for('static', filename='capture.json') }}"
+                    background="transparent"
+                    speed="1"
+                    style="width:100px; height:100px;"
+                    loop autoplay>
+                  </lottie-player>
+                  <p class="text-xl font-bold mt-2">도감에 등록 완료! ✅</p>
+                </div>
+              `);
+            }, 1000);
           } catch {
-            showModal(`<p class="text-red-500">등록 중 오류가 발생했습니다.</p>
-                   <button id="closeBtn" class="px-4 py-2 bg-blue-600 text-white rounded">확인</button>`);
+            showModal(`
+              <div class="flex flex-col items-center">
+                <img src="${profileImg}" class="w-20 h-20 rounded-full mb-2">
+                <p class="text-red-500">등록 중 오류가 발생했습니다.</p>
+              </div>
+            `);
           }
-
-          document.getElementById("closeBtn").onclick = () => {
-            hideModal();
-            location.reload();
-          };
         } else {
-          // 틀리면 1.5초 뒤 모달 닫고 대시보드 새로고침
-          showModal(`<p class="text-xl font-bold mb-2">오답입니다… 😢</p>
-                 <p class="text-sm mb-4">다시 도전해 보세요!</p>`);
-          setTimeout(() => {
-            hideModal();
-            location.reload();
-          }, 2000);
+          // 오답 처리 (프로필 포함)
+          showModal(`
+            <div class="flex flex-col items-center">
+              <img src="${profileImg}" class="w-20 h-20 rounded-full mb-2">
+              <p class="text-xl font-bold mb-2">오답입니다… 😢</p>
+              <p class="text-sm">다시 도전해 보세요!</p>
+            </div>
+          `);
         }
+
+        // 2초 뒤 모달 닫고 새로고침
+        setTimeout(() => {
+          hideModal();
+          location.reload();
+        }, 2000);
       }
     </script>
   </body>
